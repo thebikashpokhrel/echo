@@ -1,5 +1,5 @@
 import { assertEquals, assertThrows } from "@std/assert";
-import { tokenize } from "../lexer/lexer.ts";
+import { tokenize, TokenType } from "../lexer/lexer.ts";
 
 Deno.test("Simple test for Tokenizer", () => {
   const testCode = `
@@ -8,23 +8,23 @@ let y = (2+3) + 4
   `;
   const tokens = tokenize(testCode);
   const expectedTokens = [
-    { value: "let", tokenType: 7 },
-    { value: "x", tokenType: 2 },
-    { value: "=", tokenType: 3 },
-    { value: "Hello", tokenType: 0 },
-    { value: "+", tokenType: 6 },
-    { value: "4", tokenType: 1 },
-    { value: "let", tokenType: 7 },
-    { value: "y", tokenType: 2 },
-    { value: "=", tokenType: 3 },
-    { value: "(", tokenType: 4 },
-    { value: "2", tokenType: 1 },
-    { value: "+", tokenType: 6 },
-    { value: "3", tokenType: 1 },
-    { value: ")", tokenType: 5 },
-    { value: "+", tokenType: 6 },
-    { value: "4", tokenType: 1 },
-    { value: "EndOfFile", tokenType: 8 },
+    { value: "let", tokenType: TokenType.Let },
+    { value: "x", tokenType: TokenType.Identifier },
+    { value: "=", tokenType: TokenType.Equals },
+    { value: "Hello", tokenType: TokenType.String },
+    { value: "+", tokenType: TokenType.BinaryOperator },
+    { value: "4", tokenType: TokenType.Number },
+    { value: "let", tokenType: TokenType.Let },
+    { value: "y", tokenType: TokenType.Identifier },
+    { value: "=", tokenType: TokenType.Equals },
+    { value: "(", tokenType: TokenType.OpenParenthesis },
+    { value: "2", tokenType: TokenType.Number },
+    { value: "+", tokenType: TokenType.BinaryOperator },
+    { value: "3", tokenType: TokenType.Number },
+    { value: ")", tokenType: TokenType.CloseParenthesis },
+    { value: "+", tokenType: TokenType.BinaryOperator },
+    { value: "4", tokenType: TokenType.Number },
+    { value: "EndOfFile", tokenType: TokenType.EOF },
   ];
   assertEquals(tokens, expectedTokens);
 });

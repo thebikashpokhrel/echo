@@ -1,4 +1,7 @@
-import { tokenize } from "./lexer/lexer.ts";
+import Environment from "./interpretor/environment.ts";
+import { evaluate } from "./interpretor/interpretor.ts";
+import { makeTypes, ValueType, type NumberValue } from "./interpretor/types.ts";
+// import { tokenize } from "./lexer/lexer.ts";
 import Parser from "./parser/parser.ts";
 
 // const srcFile = "./examples/code.txt";
@@ -9,6 +12,8 @@ import Parser from "./parser/parser.ts";
 
 const repl = function () {
   const parser = new Parser();
+  const env = new Environment();
+
   while (true) {
     const input = prompt("> ");
     if (!input || input.includes("exit")) {
@@ -16,7 +21,8 @@ const repl = function () {
     }
 
     const program = parser.generateAST(input);
-    console.log(program);
+    const res = evaluate(program, env);
+    console.log(res);
   }
 };
 

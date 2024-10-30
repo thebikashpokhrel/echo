@@ -1,9 +1,14 @@
 export enum NodeType {
-  Program,
-  StringLiteral,
-  NumericLiteral,
-  BinaryExpression,
-  Identifier,
+  //Statements
+  Program = "Program",
+  VariableDeclaration = "VariableDeclaration",
+
+  //Expressions
+  NullLiteral = "NullLiteral",
+  StringLiteral = "StringLiteral",
+  NumericLiteral = "NumericLiteral",
+  BinaryExpression = "BinaryExpression",
+  Identifier = "Identifier",
 }
 
 export interface Stmt {
@@ -13,6 +18,13 @@ export interface Stmt {
 export interface Program extends Stmt {
   type: NodeType.Program;
   body: Stmt[];
+}
+
+export interface VariableDeclaration extends Stmt {
+  type: NodeType.VariableDeclaration;
+  constant: boolean;
+  identifier: string;
+  value?: Expression;
 }
 
 export interface Expression extends Stmt {}
@@ -37,4 +49,9 @@ export interface StringLiteral extends Expression {
 export interface NumericLiteral extends Expression {
   type: NodeType.NumericLiteral;
   value: number;
+}
+
+export interface NulllLiteral extends Expression {
+  type: NodeType.NullLiteral;
+  value: "null";
 }

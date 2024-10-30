@@ -8,6 +8,8 @@ import {
   NumericLiteral,
   Identifier,
   NodeType,
+  NulllLiteral,
+  type VariableDeclaration,
 } from "./ast.ts";
 
 import { tokenize, Token, TokenType } from "../lexer/lexer.ts";
@@ -44,8 +46,14 @@ export default class Parser {
    */
 
   private parseStmt(): Stmt {
-    //For now we will parse expression only
-    return this.parseExpression();
+    switch (this.current().tokenType) {
+      case TokenType.Let:
+      case TokenType.Const:
+        return this.parseVariableDeclaration();
+
+      default:
+        return this.parseExpression();
+    }
   }
   private parseExpression(): Expression {
     return this.parseAdditiveExpression();
@@ -110,6 +118,14 @@ export default class Parser {
           value: parseFloat(this.advance().value),
         } as NumericLiteral;
 
+      case TokenType.Null: {
+        this.advance();
+        return {
+          type: NodeType.NullLiteral,
+          value: "null",
+        } as NulllLiteral;
+      }
+
       case TokenType.OpenParenthesis: {
         this.advance();
         const expr = this.parseExpression();
@@ -122,10 +138,46 @@ export default class Parser {
       }
 
       default:
-        throw new Error("Unexpected token found: " + tk);
+        throw new Error("Unexpected token found: " + tk.tokenType);
     }
   }
 
+  private parseVariableDeclaration(): Stmt {
+    const isConstant = this.advance().tokenType == TokenType.Const;
+    const identifier = this.expect(
+      TokenType.Identifier,
+      "Expected identifier name after const or let keyword:"
+    ).value;
+
+    if (this.current().tokenType == TokenType.SemiColon) {
+      this.advance();
+      if (isConstant) {
+        throw new Error("Value must be assigned for constant expression");
+      }
+
+      return {
+        type: NodeType.VariableDeclaration,
+        constant: isConstant,
+        identifier,
+      } as VariableDeclaration;
+    }
+
+    this.expect(
+      TokenType.Equals,
+      "Expected '=' after identifier's name while declaring variable"
+    );
+
+    const declaration = {
+      type: NodeType.VariableDeclaration,
+      constant: isConstant,
+      identifier,
+      value: this.parseExpression(),
+    } as VariableDeclaration;
+
+    this.expect(TokenType.SemiColon, "Expected ';' after variable declaration");
+
+    return declaration;
+  }
   public generateAST(srcCode: string): Program {
     this.tokens = tokenize(srcCode);
     const program: Program = {

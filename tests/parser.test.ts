@@ -1,25 +1,27 @@
 import { assertEquals, assertThrows } from "@std/assert";
 import Parser from "../parser/parser.ts";
+import { NodeType, type Program } from "../parser/ast.ts";
+import type { BinaryExpression } from "../parser/ast.ts";
 
 Deno.test("Simple Test for Parser", () => {
   const testCode = `
 (2+3)*4
   `;
   const programTree = new Parser().generateAST(testCode);
-  const expectedTree = {
-    type: 0,
+  const expectedTree: Program = {
+    type: NodeType.Program,
     body: [
       {
-        type: 3,
+        type: NodeType.BinaryExpression,
         left: {
-          type: 3,
-          left: { type: 2, value: 2 },
-          right: { type: 2, value: 3 },
+          type: NodeType.BinaryExpression,
+          left: { type: NodeType.NumericLiteral, value: 2 },
+          right: { type: NodeType.NumericLiteral, value: 3 },
           operator: "+",
         },
-        right: { type: 2, value: 4 },
+        right: { type: NodeType.NumericLiteral, value: 4 },
         operator: "*",
-      },
+      } as BinaryExpression,
     ],
   };
   assertEquals(programTree, expectedTree);

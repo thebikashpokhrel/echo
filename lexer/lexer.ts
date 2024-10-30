@@ -1,13 +1,16 @@
 export enum TokenType {
-  String,
-  Number,
-  Identifier,
-  Equals,
-  OpenParenthesis,
-  CloseParenthesis,
-  BinaryOperator,
-  Let,
-  EOF,
+  Null = "Null",
+  String = "String",
+  Number = "Number",
+  Identifier = "Identifier",
+  Equals = "Equals",
+  OpenParenthesis = "OpenParenthesis",
+  CloseParenthesis = "CloseParenthesis",
+  BinaryOperator = "BinaryOperator",
+  Let = "Let",
+  Const = "Const",
+  EOF = "EOF",
+  SemiColon = "SemiColon",
 }
 
 //Represents individual token
@@ -19,6 +22,8 @@ export interface Token {
 //Lists of reserved keywords
 const keywords: Record<string, TokenType> = {
   let: TokenType.Let,
+  const: TokenType.Const,
+  null: TokenType.Null,
 };
 
 const toToken = (value: string, tokenType: TokenType): Token => {
@@ -63,6 +68,7 @@ export const tokenize = (code: string): Token[] => {
     else if (c == "+" || c == "-" || c == "*" || c == "/" || c == "%")
       tokens.push(toToken(c, TokenType.BinaryOperator));
     else if (c == "=") tokens.push(toToken(c, TokenType.Equals));
+    else if (c == ";") tokens.push(toToken(c, TokenType.SemiColon));
     else {
       //For multicharacter tokens
       //Check for number literals
@@ -97,7 +103,8 @@ export const tokenize = (code: string): Token[] => {
 
         //Check if that identifier is a reserved keyword or actual identifier
         const keyword = keywords[identifier];
-        if (keyword) tokens.push(toToken(identifier, keyword));
+        if (typeof keyword == "string")
+          tokens.push(toToken(identifier, keyword));
         else tokens.push(toToken(identifier, TokenType.Identifier));
       } else {
         throw new Error("Unrecognized character found :" + c);
