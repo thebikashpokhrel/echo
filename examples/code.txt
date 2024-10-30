@@ -1,2 +1,2 @@
-let x = 4 + 566
-let y = (2+3)/4
+let x = "Hello" + 4
+let y = (2+3) + 4

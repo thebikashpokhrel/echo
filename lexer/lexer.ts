@@ -1,4 +1,4 @@
-enum TokenType {
+export enum TokenType {
   String,
   Number,
   Identifier,
@@ -7,10 +7,11 @@ enum TokenType {
   CloseParenthesis,
   BinaryOperator,
   Let,
+  EOF,
 }
 
 //Represents individual token
-interface Token {
+export interface Token {
   value: string;
   tokenType: TokenType;
 }
@@ -56,9 +57,10 @@ export const tokenize = (code: string): Token[] => {
   while (src.length > 0) {
     let c = src.shift(); // Get the current character
 
-    if (c == "(") tokens.push(toToken(c, TokenType.OpenParenthesis));
+    if (isWhitespace(c)) continue;
+    else if (c == "(") tokens.push(toToken(c, TokenType.OpenParenthesis));
     else if (c == ")") tokens.push(toToken(c, TokenType.CloseParenthesis));
-    else if (c == "+" || c == "-" || c == "*" || c == "/")
+    else if (c == "+" || c == "-" || c == "*" || c == "/" || c == "%")
       tokens.push(toToken(c, TokenType.BinaryOperator));
     else if (c == "=") tokens.push(toToken(c, TokenType.Equals));
     else {
@@ -73,6 +75,18 @@ export const tokenize = (code: string): Token[] => {
         }
 
         tokens.push(toToken(number, TokenType.Number));
+      } else if (c == '"') {
+        //Check for strings
+        let str = "";
+        while (src.length > 0 && src[0] != '"' && src[0] != "\n") {
+          c = src.shift();
+          str += c;
+        }
+        if (src[0] != '"') {
+          throw new Error("Missing ending quotation");
+        }
+        src.shift();
+        tokens.push(toToken(str, TokenType.String));
       } else if (isAlphabet(c)) {
         //Check for identifier or keywords
         let identifier = c!;
@@ -85,15 +99,12 @@ export const tokenize = (code: string): Token[] => {
         const keyword = keywords[identifier];
         if (keyword) tokens.push(toToken(identifier, keyword));
         else tokens.push(toToken(identifier, TokenType.Identifier));
-      } else if (isWhitespace(c)) continue;
-      else {
-        console.log("Unrecognized character found :", c);
-        Deno.exit(1);
+      } else {
+        throw new Error("Unrecognized character found :" + c);
       }
     }
   }
 
+  tokens.push(toToken("EndOfFile", TokenType.EOF));
   return tokens;
 };
-
-//TODO: Tokenization of string
