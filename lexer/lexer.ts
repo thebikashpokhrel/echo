@@ -4,13 +4,17 @@ export enum TokenType {
   Number = "Number",
   Identifier = "Identifier",
   Equals = "Equals",
-  OpenParenthesis = "OpenParenthesis",
-  CloseParenthesis = "CloseParenthesis",
+  OpenParenthesis = "OpenParenthesis", // (
+  CloseParenthesis = "CloseParenthesis", // )
   BinaryOperator = "BinaryOperator",
   Let = "Let",
   Const = "Const",
   EOF = "EOF",
   SemiColon = "SemiColon",
+  Comma = "Comma",
+  Colon = "Colon",
+  OpenBracket = "OpenBracket", // {
+  CloseBracket = "CloseBracket", // }
 }
 
 //Represents individual token
@@ -69,6 +73,10 @@ export const tokenize = (code: string): Token[] => {
       tokens.push(toToken(c, TokenType.BinaryOperator));
     else if (c == "=") tokens.push(toToken(c, TokenType.Equals));
     else if (c == ";") tokens.push(toToken(c, TokenType.SemiColon));
+    else if (c == ",") tokens.push(toToken(c, TokenType.Comma));
+    else if (c == ":") tokens.push(toToken(c, TokenType.Colon));
+    else if (c == "{") tokens.push(toToken(c, TokenType.OpenBracket));
+    else if (c == "}") tokens.push(toToken(c, TokenType.CloseBracket));
     else {
       //For multicharacter tokens
       //Check for number literals

@@ -1,4 +1,11 @@
-import type { RuntimeValue } from "./types.ts";
+import { makeTypes, type RuntimeValue } from "./types.ts";
+
+export const createGlobalEnv = () => {
+  const env = new Environment();
+  env.declarVar("true", makeTypes.BOOLEAN(true), true);
+  env.declarVar("false", makeTypes.BOOLEAN(false), true);
+  return env;
+};
 
 export default class Environment {
   private parent?: Environment;
@@ -27,16 +34,16 @@ export default class Environment {
 
   public assignVar(varname: string, value: RuntimeValue): RuntimeValue {
     const env = this.resolveEnv(varname);
+
+    if (env.constants.has(varname)) {
+      throw new Error(`Can't do reassignment to constant ${varname}`);
+    }
     env.variables.set(varname, value);
     return value;
   }
 
   public getVar(varname: string): RuntimeValue {
     const env = this.resolveEnv(varname);
-
-    if (env.constants.has(varname)) {
-      throw new Error(`Can't do reassignment to constant ${varname}`);
-    }
     return env.variables.get(varname) as RuntimeValue;
   }
 

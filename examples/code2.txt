@@ -1,0 +1,11 @@
+const title="Bikash";
+
+let x = {
+    name:title + " Pokhrel",
+    nested:{
+        prop:5+4,
+        x:4,
+    },
+    title,
+    bool:true,
+};

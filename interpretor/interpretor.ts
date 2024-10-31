@@ -8,10 +8,17 @@ import {
   type Program,
   type Identifier,
   type VariableDeclaration,
+  type AssignmentExpression,
+  type ObjectLiteral,
 } from "../parser/ast.ts";
 import type Environment from "./environment.ts";
 import { evalProgram, evalVariableDeclaration } from "./eval/statements.ts";
-import { evalBinaryExpression, evalIdentifier } from "./eval/expressions.ts";
+import {
+  evalAssignmentExpression,
+  evalBinaryExpression,
+  evalIdentifier,
+} from "./eval/expressions.ts";
+import { evalObjectExpression } from "./eval/expressions.ts";
 
 export const evaluate = (node: Stmt, env: Environment): RuntimeValue => {
   switch (node.type) {
@@ -27,6 +34,9 @@ export const evaluate = (node: Stmt, env: Environment): RuntimeValue => {
     case NodeType.Identifier:
       return evalIdentifier(node as Identifier, env);
 
+    case NodeType.ObjectLiteral:
+      return evalObjectExpression(node as ObjectLiteral, env);
+
     case NodeType.BinaryExpression:
       return evalBinaryExpression(node as BinaryExpression, env);
 
@@ -35,6 +45,9 @@ export const evaluate = (node: Stmt, env: Environment): RuntimeValue => {
 
     case NodeType.VariableDeclaration:
       return evalVariableDeclaration(node as VariableDeclaration, env);
+
+    case NodeType.AssignmentExpression:
+      return evalAssignmentExpression(node as AssignmentExpression, env);
 
     default:
       throw new Error(

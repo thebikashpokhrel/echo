@@ -35,6 +35,6 @@ Deno.test("Parsing error on illegal brackets", () => {
       parser.generateAST(testCode);
     },
     Error,
-    "Error while parsing: Closing Parenthesis is missing | Expecting token: CloseParenthesis"
+    "Error while parsing: Closing Parenthesis is missing | Expected token: CloseParenthesis"
   );
 });

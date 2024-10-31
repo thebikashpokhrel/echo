@@ -4,11 +4,17 @@ export enum NodeType {
   VariableDeclaration = "VariableDeclaration",
 
   //Expressions
+  BinaryExpression = "BinaryExpression",
+  Identifier = "Identifier",
+  AssignmentExpression = "AssignmentExpression",
+
+  //Literals
   NullLiteral = "NullLiteral",
   StringLiteral = "StringLiteral",
   NumericLiteral = "NumericLiteral",
-  BinaryExpression = "BinaryExpression",
-  Identifier = "Identifier",
+  ObjectLiteral = "ObjectLiteral",
+
+  Property = "Property",
 }
 
 export interface Stmt {
@@ -28,6 +34,12 @@ export interface VariableDeclaration extends Stmt {
 }
 
 export interface Expression extends Stmt {}
+
+export interface AssignmentExpression extends Expression {
+  type: NodeType.AssignmentExpression;
+  assignee: Expression;
+  value: Expression;
+}
 
 export interface BinaryExpression extends Expression {
   type: NodeType.BinaryExpression;
@@ -54,4 +66,15 @@ export interface NumericLiteral extends Expression {
 export interface NulllLiteral extends Expression {
   type: NodeType.NullLiteral;
   value: "null";
+}
+
+export interface ObjectLiteral extends Expression {
+  type: NodeType.ObjectLiteral;
+  properties: Property[];
+}
+
+export interface Property extends Expression {
+  type: NodeType.Property;
+  key: string;
+  value?: Expression;
 }

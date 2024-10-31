@@ -1,2 +1,4 @@
-let x = "Hello" + 4
-let y = (2+3) + 4
+let x = 4;
+let y = 5;
+let z = x * y;
+z

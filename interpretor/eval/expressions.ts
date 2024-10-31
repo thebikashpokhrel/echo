@@ -1,4 +1,10 @@
-import type { BinaryExpression, Identifier } from "../../parser/ast.ts";
+import type { ObjectLiteral } from "../../parser/ast.ts";
+import {
+  NodeType,
+  type AssignmentExpression,
+  type BinaryExpression,
+  type Identifier,
+} from "../../parser/ast.ts";
 import type Environment from "../environment.ts";
 import { evaluate } from "../interpretor.ts";
 import {
@@ -7,6 +13,7 @@ import {
   ValueType,
   type RuntimeValue,
   makeTypes,
+  type ObjectValue,
 } from "../types.ts";
 
 const evalAlphaNumBinaryExpression = (
@@ -69,4 +76,37 @@ export const evalIdentifier = (
 ): RuntimeValue => {
   const val = env.getVar(identifier.name);
   return val;
+};
+
+export const evalAssignmentExpression = (
+  node: AssignmentExpression,
+  env: Environment
+): RuntimeValue => {
+  if (node.assignee.type != NodeType.Identifier) {
+    throw new Error(
+      `Invalid assignment : Assigning ${node.assignee} to ${node.value}`
+    );
+  }
+
+  return env.assignVar(
+    (node.assignee as Identifier).name,
+    evaluate(node.value, env)
+  );
+};
+
+export const evalObjectExpression = (
+  obj: ObjectLiteral,
+  env: Environment
+): RuntimeValue => {
+  const object = {
+    type: ValueType.object,
+    properties: new Map(),
+  } as ObjectValue;
+
+  for (const { key, value } of obj.properties) {
+    const runtimeVal = value ? evaluate(value, env) : env.getVar(key);
+
+    object.properties.set(key, runtimeVal);
+  }
+  return object;
 };

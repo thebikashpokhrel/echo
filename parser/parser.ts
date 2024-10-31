@@ -10,6 +10,9 @@ import {
   NodeType,
   NulllLiteral,
   type VariableDeclaration,
+  type AssignmentExpression,
+  type Property,
+  type ObjectLiteral,
 } from "./ast.ts";
 
 import { tokenize, Token, TokenType } from "../lexer/lexer.ts";
@@ -33,7 +36,7 @@ export default class Parser {
     const tk = this.advance();
     if (!tk || tk.tokenType != type) {
       throw new Error(
-        "Error while parsing: " + err + " | Expecting token: " + TokenType[type]
+        "Error while parsing: " + err + " | Expected token: " + TokenType[type]
       );
     }
 
@@ -56,7 +59,28 @@ export default class Parser {
     }
   }
   private parseExpression(): Expression {
-    return this.parseAdditiveExpression();
+    return this.parseAssignmentExpression();
+  }
+
+  private parseAssignmentExpression(): Expression {
+    //TODO: Semicolon at end when variables are chained i.e. x=y=4;
+
+    const lhs = this.parseObjectExpression();
+    if (this.current().tokenType == TokenType.Equals) {
+      this.advance();
+      const value = this.parseAssignmentExpression();
+      this.expect(
+        TokenType.SemiColon,
+        "Expected ; after assignment expression"
+      );
+      return {
+        type: NodeType.AssignmentExpression,
+        value,
+        assignee: lhs,
+      } as AssignmentExpression;
+    }
+
+    return lhs;
   }
 
   private parseAdditiveExpression(): Expression {
@@ -177,6 +201,55 @@ export default class Parser {
     this.expect(TokenType.SemiColon, "Expected ';' after variable declaration");
 
     return declaration;
+  }
+
+  private parseObjectExpression(): Expression {
+    if (this.current().tokenType != TokenType.OpenBracket) {
+      return this.parseAdditiveExpression();
+    }
+
+    this.advance();
+    const properties = new Array<Property>();
+
+    while (
+      this.notEOF() &&
+      this.current().tokenType != TokenType.CloseBracket
+    ) {
+      const key = this.expect(
+        TokenType.Identifier,
+        "Object literal key expected."
+      ).value;
+
+      if (this.current().tokenType == TokenType.Comma) {
+        this.advance();
+        properties.push({ key, type: NodeType.Property } as Property);
+      } else if (this.current().tokenType == TokenType.CloseBracket) {
+        properties.push({ key, type: NodeType.Property } as Property);
+        continue;
+      } else {
+        this.expect(
+          TokenType.Colon,
+          "Missing colon after identifier in Object Literal"
+        );
+
+        const value = this.parseExpression();
+        properties.push({ type: NodeType.Property, key, value } as Property);
+
+        if (this.current().tokenType != TokenType.CloseBracket) {
+          this.expect(TokenType.Comma, "Expected a comma or closing bracket");
+        }
+      }
+    }
+
+    this.expect(
+      TokenType.CloseBracket,
+      "Object literal must have ending closing brace."
+    );
+
+    return {
+      type: NodeType.ObjectLiteral,
+      properties,
+    } as ObjectLiteral;
   }
   public generateAST(srcCode: string): Program {
     this.tokens = tokenize(srcCode);

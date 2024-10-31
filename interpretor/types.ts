@@ -3,6 +3,7 @@ export enum ValueType {
   number = "number",
   string = "string",
   boolean = "boolean",
+  object = "object",
 }
 
 export interface RuntimeValue {
@@ -27,6 +28,11 @@ export interface StringValue extends RuntimeValue {
 export interface BooleanValue extends RuntimeValue {
   type: ValueType.boolean;
   value: boolean;
+}
+
+export interface ObjectValue extends RuntimeValue {
+  type: ValueType.object;
+  properties: Map<string, RuntimeValue>;
 }
 
 export const makeTypes = {

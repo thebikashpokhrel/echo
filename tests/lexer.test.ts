@@ -30,12 +30,12 @@ let y = (2+3) + 4
 });
 
 Deno.test("Lexing error on unrecognized character", () => {
-  const testCode = "x = 3;";
+  const testCode = "x = 3@";
   assertThrows(
     () => {
       tokenize(testCode);
     },
     Error,
-    "Unrecognized character found :;"
+    "Unrecognized character found :@"
   );
 });
