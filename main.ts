@@ -1,14 +1,10 @@
-import Environment, { createGlobalEnv } from "./interpretor/environment.ts";
+import { createGlobalEnv } from "./interpretor/environment.ts";
 import { evaluate } from "./interpretor/interpretor.ts";
-import { makeTypes } from "./interpretor/types.ts";
 import Parser from "./parser/parser.ts";
 
 const repl = function () {
   const parser = new Parser();
-  const env = new Environment();
-  env.declarVar("true", makeTypes.BOOLEAN(true), true);
-  env.declarVar("false", makeTypes.BOOLEAN(false), true);
-
+  const env = createGlobalEnv(); //Global Scope
   while (true) {
     const input = prompt("> ");
     if (!input || input.includes("exit")) {
@@ -35,4 +31,4 @@ const runSrc = async (src: string) => {
   // console.log(res);
 };
 
-runSrc("./examples/code3.txt");
+runSrc("./examples/code4.txt");

@@ -11,9 +11,14 @@ import {
   type AssignmentExpression,
   type ObjectLiteral,
   type CallExpression,
+  type FunctionDeclaration,
 } from "../parser/ast.ts";
 import type Environment from "./environment.ts";
-import { evalProgram, evalVariableDeclaration } from "./eval/statements.ts";
+import {
+  evalFunctionDeclaration,
+  evalProgram,
+  evalVariableDeclaration,
+} from "./eval/statements.ts";
 import {
   evalAssignmentExpression,
   evalBinaryExpression,
@@ -50,6 +55,9 @@ export const evaluate = (node: Stmt, env: Environment): RuntimeValue => {
 
     case NodeType.VariableDeclaration:
       return evalVariableDeclaration(node as VariableDeclaration, env);
+
+    case NodeType.FunctionDeclaration:
+      return evalFunctionDeclaration(node as FunctionDeclaration, env);
 
     case NodeType.AssignmentExpression:
       return evalAssignmentExpression(node as AssignmentExpression, env);

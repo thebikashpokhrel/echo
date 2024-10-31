@@ -2,6 +2,7 @@ export enum NodeType {
   //Statements
   Program = "Program",
   VariableDeclaration = "VariableDeclaration",
+  FunctionDeclaration = "FunctionDeclaration",
 
   //Expressions
   BinaryExpression = "BinaryExpression",
@@ -33,6 +34,13 @@ export interface VariableDeclaration extends Stmt {
   constant: boolean;
   identifier: string;
   value?: Expression;
+}
+
+export interface FunctionDeclaration extends Stmt {
+  type: NodeType.FunctionDeclaration;
+  parameters: string[];
+  name: string;
+  body: Stmt[];
 }
 
 export interface Expression extends Stmt {}

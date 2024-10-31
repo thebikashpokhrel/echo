@@ -5,8 +5,9 @@ import {
   type BinaryExpression,
   type Identifier,
 } from "../../parser/ast.ts";
-import type Environment from "../environment.ts";
+import Environment from "../environment.ts";
 import { evaluate } from "../interpretor.ts";
+import type { FunctionValue } from "../types.ts";
 import {
   type NumberValue,
   type StringValue,
@@ -119,10 +120,26 @@ export const evalCallExpression = (
   const args = expr.arguments.map((arg) => evaluate(arg, env));
   const func = evaluate(expr.caller, env);
 
-  if (func.type != ValueType.nativeFunction) {
-    throw new Error("Native functions are only supported.");
+  if (func.type == ValueType.nativeFunction) {
+    const fnResult = (func as NativeFunctionValue).call(args, env);
+    return fnResult;
+  }
+  if (func.type == ValueType.function) {
+    const fn = func as FunctionValue;
+    const scope = new Environment(fn.declarationEnv);
+
+    fn.paramters.forEach((param, i) => {
+      //TODO: Check if number of paramaters and args are equal
+      scope.declarVar(param, args[i], false);
+    });
+
+    let retValue: RuntimeValue = makeTypes.NULL();
+
+    for (const stmt of fn.body) {
+      retValue = evaluate(stmt, scope);
+    }
+    return retValue;
   }
 
-  const fnResult = (func as NativeFunctionValue).call(args, env);
-  return fnResult;
+  throw new Error("Native functions are only supported.");
 };

@@ -10,6 +10,7 @@ import {
   NodeType,
   NullLiteral,
   type VariableDeclaration,
+  type FunctionDeclaration,
   type AssignmentExpression,
   type Property,
   type ObjectLiteral,
@@ -59,10 +60,51 @@ export default class Parser {
       case TokenType.Let:
       case TokenType.Const:
         return this.parseVariableDeclaration();
+      case TokenType.Def:
+        return this.parseFunctionDeclaration();
 
       default:
         return this.parseExpression();
     }
+  }
+  private parseFunctionDeclaration(): Stmt {
+    this.advance();
+    const name = this.expect(
+      TokenType.Identifier,
+      "Expected function name after def keyword."
+    ).value;
+
+    const args = this.parseArguments();
+    const params: string[] = [];
+
+    for (const arg of args) {
+      if (arg.type != NodeType.Identifier)
+        throw new Error("Expected paramters to be identifier");
+
+      params.push((arg as Identifier).name);
+    }
+
+    this.expect(TokenType.OpenBrace, "Expected a function body");
+
+    const body: Stmt[] = [];
+
+    while (
+      this.current().tokenType != TokenType.CloseBrace &&
+      this.current().tokenType != TokenType.EOF
+    ) {
+      body.push(this.parseStmt());
+    }
+
+    this.expect(TokenType.CloseBrace, "Expected a closing brace");
+
+    const fn = {
+      body,
+      name,
+      parameters: params,
+      type: NodeType.FunctionDeclaration,
+    } as FunctionDeclaration;
+
+    return fn;
   }
 
   private parseExpression(): Expression {

@@ -9,6 +9,7 @@ export enum TokenType {
   BinaryOperator = "BinaryOperator",
   Let = "Let",
   Const = "Const",
+  Def = "Def",
   EOF = "EOF",
   SemiColon = "SemiColon",
   Comma = "Comma",
@@ -31,6 +32,7 @@ const keywords: Record<string, TokenType> = {
   let: TokenType.Let,
   const: TokenType.Const,
   null: TokenType.Null,
+  def: TokenType.Def,
 };
 
 const toToken = (value: string, tokenType: TokenType): Token => {

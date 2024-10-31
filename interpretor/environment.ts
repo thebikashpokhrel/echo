@@ -20,7 +20,7 @@ export const createGlobalEnv = () => {
 
   //Time Function
   env.declarVar(
-    "time",
+    "now",
     makeTypes.NATIVE_FUNCTION((args, env) => {
       return makeTypes.NUMBER(Date.now());
     }),
@@ -78,6 +78,6 @@ export default class Environment {
         `Cannot resolve the variable ${varname} as it doesn't exist`
       );
 
-    return this.resolveEnv(varname);
+    return this.parent.resolveEnv(varname);
   }
 }

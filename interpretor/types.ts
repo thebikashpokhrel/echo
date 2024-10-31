@@ -1,3 +1,4 @@
+import type { Stmt } from "../parser/ast.ts";
 import type Environment from "./environment.ts";
 
 export enum ValueType {
@@ -7,6 +8,7 @@ export enum ValueType {
   boolean = "boolean",
   object = "object",
   nativeFunction = "nativeFunction",
+  function = "function",
 }
 
 export interface RuntimeValue {
@@ -46,6 +48,14 @@ export type FunctionCall = (
 export interface NativeFunctionValue extends RuntimeValue {
   type: ValueType.nativeFunction;
   call: FunctionCall;
+}
+
+export interface FunctionValue extends RuntimeValue {
+  type: ValueType.function;
+  name: string;
+  paramters: string[];
+  declarationEnv: Environment;
+  body: Stmt[];
 }
 
 export const makeTypes = {
