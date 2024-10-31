@@ -7,6 +7,8 @@ export enum NodeType {
   BinaryExpression = "BinaryExpression",
   Identifier = "Identifier",
   AssignmentExpression = "AssignmentExpression",
+  MemberExpression = "MemberExpression",
+  CallExpression = "CallExpression",
 
   //Literals
   NullLiteral = "NullLiteral",
@@ -63,7 +65,7 @@ export interface NumericLiteral extends Expression {
   value: number;
 }
 
-export interface NulllLiteral extends Expression {
+export interface NullLiteral extends Expression {
   type: NodeType.NullLiteral;
   value: "null";
 }
@@ -77,4 +79,17 @@ export interface Property extends Expression {
   type: NodeType.Property;
   key: string;
   value?: Expression;
+}
+
+export interface MemberExpression extends Expression {
+  type: NodeType.MemberExpression;
+  object: Expression;
+  property: Expression;
+  computed: boolean;
+}
+
+export interface CallExpression extends Expression {
+  type: NodeType.CallExpression;
+  arguments: Expression[];
+  caller: Expression;
 }

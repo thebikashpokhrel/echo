@@ -1,4 +1,4 @@
-import type { ObjectLiteral } from "../../parser/ast.ts";
+import type { CallExpression, ObjectLiteral } from "../../parser/ast.ts";
 import {
   NodeType,
   type AssignmentExpression,
@@ -14,6 +14,7 @@ import {
   type RuntimeValue,
   makeTypes,
   type ObjectValue,
+  type NativeFunctionValue,
 } from "../types.ts";
 
 const evalAlphaNumBinaryExpression = (
@@ -109,4 +110,19 @@ export const evalObjectExpression = (
     object.properties.set(key, runtimeVal);
   }
   return object;
+};
+
+export const evalCallExpression = (
+  expr: CallExpression,
+  env: Environment
+): RuntimeValue => {
+  const args = expr.arguments.map((arg) => evaluate(arg, env));
+  const func = evaluate(expr.caller, env);
+
+  if (func.type != ValueType.nativeFunction) {
+    throw new Error("Native functions are only supported.");
+  }
+
+  const fnResult = (func as NativeFunctionValue).call(args, env);
+  return fnResult;
 };

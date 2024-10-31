@@ -1,0 +1,4 @@
+let x = 4;
+echo("hello world ",x)
+let t = now();
+echo (t)

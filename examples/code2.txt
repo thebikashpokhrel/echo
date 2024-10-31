@@ -4,8 +4,9 @@ let x = {
     name:title + " Pokhrel",
     nested:{
         prop:5+4,
-        x:4,
+        val:4,
     },
     title,
     bool:true,
 };
+x.nested(x,1)

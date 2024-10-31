@@ -4,6 +4,29 @@ export const createGlobalEnv = () => {
   const env = new Environment();
   env.declarVar("true", makeTypes.BOOLEAN(true), true);
   env.declarVar("false", makeTypes.BOOLEAN(false), true);
+
+  //Define native functions
+
+  //Printing function
+  env.declarVar(
+    "echo",
+    makeTypes.NATIVE_FUNCTION((args, env) => {
+      console.log(...args);
+
+      return makeTypes.NULL();
+    }),
+    true
+  );
+
+  //Time Function
+  env.declarVar(
+    "time",
+    makeTypes.NATIVE_FUNCTION((args, env) => {
+      return makeTypes.NUMBER(Date.now());
+    }),
+    true
+  );
+
   return env;
 };
 

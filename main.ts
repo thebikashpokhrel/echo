@@ -32,7 +32,7 @@ const runSrc = async (src: string) => {
   const program = parser.generateAST(srcCode);
   // console.dir(program, { depth: null });
   const res = evaluate(program, env);
-  console.log(res);
+  // console.log(res);
 };
 
-runSrc("./examples/code2.txt");
+runSrc("./examples/code3.txt");

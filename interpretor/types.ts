@@ -1,9 +1,12 @@
+import type Environment from "./environment.ts";
+
 export enum ValueType {
   null = "null",
   number = "number",
   string = "string",
   boolean = "boolean",
   object = "object",
+  nativeFunction = "nativeFunction",
 }
 
 export interface RuntimeValue {
@@ -35,6 +38,16 @@ export interface ObjectValue extends RuntimeValue {
   properties: Map<string, RuntimeValue>;
 }
 
+export type FunctionCall = (
+  args: RuntimeValue[],
+  env: Environment
+) => RuntimeValue;
+
+export interface NativeFunctionValue extends RuntimeValue {
+  type: ValueType.nativeFunction;
+  call: FunctionCall;
+}
+
 export const makeTypes = {
   NULL: () => {
     return {
@@ -59,5 +72,17 @@ export const makeTypes = {
       type: ValueType.boolean,
       value,
     } as BooleanValue;
+  },
+  OBJECT: (props: Map<string, RuntimeValue>) => {
+    return {
+      type: ValueType.object,
+      properties: props,
+    } as ObjectValue;
+  },
+  NATIVE_FUNCTION: (call: FunctionCall) => {
+    return {
+      type: ValueType.nativeFunction,
+      call,
+    } as NativeFunctionValue;
   },
 };
