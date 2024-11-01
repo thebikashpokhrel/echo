@@ -27,8 +27,9 @@ const runSrc = async (src: string) => {
 
   const program = parser.generateAST(srcCode);
   // console.dir(program, { depth: null });
+  console.log("-----------------------------------------------");
   const res = evaluate(program, env);
   // console.log(res);
 };
 
-runSrc("./examples/code4.txt");
+runSrc("./examples/code3.txt");

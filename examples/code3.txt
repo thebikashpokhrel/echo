@@ -1,4 +1,17 @@
-let x = 4;
-echo("hello world ",x)
-let t = now();
-echo (t)
+def printFullName(p){
+    echo(p.name.first, p.name.last)
+}
+
+let person1 = {
+    name:{
+        first:"John",
+        last:"Doe",
+    },
+    age:25,
+};
+
+printFullName(person1)
+
+let prop = "age";
+echo(person1[prop])
+echo(person1.age)

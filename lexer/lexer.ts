@@ -112,7 +112,7 @@ export const tokenize = (code: string): Token[] => {
       } else if (isAlphabet(c)) {
         //Check for identifier or keywords
         let identifier = c!;
-        while (src.length > 0 && isAlphabet(src[0])) {
+        while (src.length > 0 && (isAlphabet(src[0]) || isNumber(src[0]))) {
           c = src.shift();
           identifier += c;
         }

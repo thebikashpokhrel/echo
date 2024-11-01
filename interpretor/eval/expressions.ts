@@ -1,4 +1,8 @@
-import type { CallExpression, ObjectLiteral } from "../../parser/ast.ts";
+import type {
+  CallExpression,
+  MemberExpression,
+  ObjectLiteral,
+} from "../../parser/ast.ts";
 import {
   NodeType,
   type AssignmentExpression,
@@ -142,4 +146,25 @@ export const evalCallExpression = (
   }
 
   throw new Error("Native functions are only supported.");
+};
+
+export const evalMemberExpression = (
+  expr: MemberExpression,
+  env: Environment
+): RuntimeValue => {
+  const key = expr.computed
+    ? (evaluate(expr.property, env) as StringValue).value
+    : (expr.property as Identifier).name;
+  let obj: ObjectValue;
+  if (expr.object.type == NodeType.Identifier) {
+    obj = evaluate(expr.object as Identifier, env) as ObjectValue;
+    return obj.properties.get(key) || makeTypes.NULL();
+  } else {
+    obj = evalMemberExpression(
+      expr.object as MemberExpression,
+      env
+    ) as ObjectValue;
+  }
+
+  return obj.properties.get(key) || makeTypes.NULL();
 };

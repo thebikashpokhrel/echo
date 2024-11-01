@@ -12,6 +12,7 @@ import {
   type ObjectLiteral,
   type CallExpression,
   type FunctionDeclaration,
+  type MemberExpression,
 } from "../parser/ast.ts";
 import type Environment from "./environment.ts";
 import {
@@ -24,6 +25,7 @@ import {
   evalBinaryExpression,
   evalCallExpression,
   evalIdentifier,
+  evalMemberExpression,
 } from "./eval/expressions.ts";
 import { evalObjectExpression } from "./eval/expressions.ts";
 
@@ -46,6 +48,9 @@ export const evaluate = (node: Stmt, env: Environment): RuntimeValue => {
 
     case NodeType.CallExpression:
       return evalCallExpression(node as CallExpression, env);
+
+    case NodeType.MemberExpression:
+      return evalMemberExpression(node as MemberExpression, env);
 
     case NodeType.BinaryExpression:
       return evalBinaryExpression(node as BinaryExpression, env);
