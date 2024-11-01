@@ -11,7 +11,7 @@ import {
 } from "../../parser/ast.ts";
 import Environment from "../environment.ts";
 import { evaluate } from "../interpretor.ts";
-import type { FunctionValue } from "../types.ts";
+import type { BooleanValue, FunctionValue } from "../types.ts";
 import {
   type NumberValue,
   type StringValue,
@@ -22,12 +22,12 @@ import {
   type NativeFunctionValue,
 } from "../types.ts";
 
-const evalAlphaNumBinaryExpression = (
-  lhs: NumberValue | StringValue,
-  rhs: NumberValue | StringValue,
+const evalAlphaNumBoolBinaryExpression = (
+  lhs: NumberValue | StringValue | BooleanValue,
+  rhs: NumberValue | StringValue | BooleanValue,
   operator: string
-): NumberValue | StringValue => {
-  let result: string | number = "";
+): NumberValue | StringValue | BooleanValue => {
+  let result: string | number | boolean = "";
   let resultType: ValueType = ValueType.null;
 
   if (lhs.type === ValueType.number && rhs.type === ValueType.number) {
@@ -36,23 +36,22 @@ const evalAlphaNumBinaryExpression = (
     else if (operator === "*") result = lhs.value * rhs.value;
     else if (operator === "/") result = lhs.value / rhs.value;
     else if (operator === "%") result = lhs.value % rhs.value;
-  } else {
+  } else if (lhs.type === ValueType.string && rhs.type === ValueType.string) {
     if (operator === "+") {
-      if (lhs.type == ValueType.number) {
-        result = lhs.value.toString() + rhs.value;
-      } else {
-        result = lhs.value + rhs.value.toString();
-      }
+      result = lhs.value + rhs.value;
     } else throw new Error(`Invalid operator "${operator}" for strings.`);
   }
 
+  if (operator == "==") result = lhs.value == rhs.value;
+
   if (typeof result == "number") resultType = ValueType.number;
   else if (typeof result == "string") resultType = ValueType.string;
+  else if (typeof result == "boolean") resultType = ValueType.boolean;
 
   return {
     type: resultType,
     value: result,
-  } as NumberValue | StringValue;
+  } as NumberValue | StringValue | BooleanValue;
 };
 
 export const evalBinaryExpression = (
@@ -63,10 +62,14 @@ export const evalBinaryExpression = (
   const rhs = evaluate(expr.right, env);
 
   if (
-    (lhs.type == ValueType.string || lhs.type == ValueType.number) &&
-    (rhs.type == ValueType.string || rhs.type == ValueType.number)
+    (lhs.type == ValueType.string ||
+      lhs.type == ValueType.number ||
+      lhs.type == ValueType.boolean) &&
+    (rhs.type == ValueType.string ||
+      rhs.type == ValueType.number ||
+      lhs.type == ValueType.boolean)
   ) {
-    return evalAlphaNumBinaryExpression(
+    return evalAlphaNumBoolBinaryExpression(
       lhs as NumberValue | StringValue,
       rhs as NumberValue | StringValue,
       expr.operator
@@ -85,19 +88,33 @@ export const evalIdentifier = (
 };
 
 export const evalAssignmentExpression = (
-  node: AssignmentExpression,
+  expr: AssignmentExpression,
   env: Environment
 ): RuntimeValue => {
-  if (node.assignee.type != NodeType.Identifier) {
-    throw new Error(
-      `Invalid assignment : Assigning ${node.assignee} to ${node.value}`
-    );
+  const value = evaluate(expr.value, env);
+  if (expr.assignee.type === NodeType.MemberExpression) {
+    const memberExpr = expr.assignee as MemberExpression;
+    const object = evaluate(memberExpr.object, env) as ObjectValue;
+
+    if (object.type !== "object") {
+      throw new Error("Invalid assignment target; left side is not an object.");
+    }
+    const key = memberExpr.computed
+      ? (evaluate(memberExpr.property, env) as StringValue).value
+      : (memberExpr.property as Identifier).name;
+
+    object.properties.set(key, value);
+    return value;
   }
 
-  return env.assignVar(
-    (node.assignee as Identifier).name,
-    evaluate(node.value, env)
-  );
+  // Handle assignment to a variable in the environment
+  if (expr.assignee.type === NodeType.Identifier) {
+    const variableName = (expr.assignee as Identifier).name;
+    return env.assignVar(variableName, value);
+  }
+
+  // If left-hand side is not valid for assignment, throw an error
+  throw new Error("Invalid assignment target.");
 };
 
 export const evalObjectExpression = (
@@ -155,16 +172,6 @@ export const evalMemberExpression = (
   const key = expr.computed
     ? (evaluate(expr.property, env) as StringValue).value
     : (expr.property as Identifier).name;
-  let obj: ObjectValue;
-  if (expr.object.type == NodeType.Identifier) {
-    obj = evaluate(expr.object as Identifier, env) as ObjectValue;
-    return obj.properties.get(key) || makeTypes.NULL();
-  } else {
-    obj = evalMemberExpression(
-      expr.object as MemberExpression,
-      env
-    ) as ObjectValue;
-  }
-
+  const obj = evaluate(expr.object as Identifier, env) as ObjectValue;
   return obj.properties.get(key) || makeTypes.NULL();
 };

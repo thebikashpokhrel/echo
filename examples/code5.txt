@@ -1,0 +1,11 @@
+let x={
+    name:{
+        first:"Bikash",
+        last:"Pokhrel",
+        m:{
+            x:4
+        }
+    }
+};
+x.name.m.x=12;
+echo(x.name.m.x)

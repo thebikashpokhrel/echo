@@ -3,7 +3,8 @@ export enum TokenType {
   String = "String",
   Number = "Number",
   Identifier = "Identifier",
-  Equals = "Equals",
+  Equals = "Equals", // =
+  Equality = "Equality", // ==
   OpenParenthesis = "OpenParenthesis", // (
   CloseParenthesis = "CloseParenthesis", // )
   BinaryOperator = "BinaryOperator",
@@ -76,7 +77,10 @@ export const tokenize = (code: string): Token[] => {
     else if (c == ")") tokens.push(toToken(c, TokenType.CloseParenthesis));
     else if (c == "+" || c == "-" || c == "*" || c == "/" || c == "%")
       tokens.push(toToken(c, TokenType.BinaryOperator));
-    else if (c == "=") tokens.push(toToken(c, TokenType.Equals));
+    else if (c == "=" && src[0] == "=") {
+      tokens.push(toToken(c + src[0], TokenType.Equality));
+      src.shift();
+    } else if (c == "=") tokens.push(toToken(c, TokenType.Equals));
     else if (c == ";") tokens.push(toToken(c, TokenType.SemiColon));
     else if (c == ",") tokens.push(toToken(c, TokenType.Comma));
     else if (c == ":") tokens.push(toToken(c, TokenType.Colon));
