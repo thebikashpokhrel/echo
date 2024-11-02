@@ -1,3 +1,4 @@
+import { echo, nativeFunctions, now } from "./lib/native-functions.ts";
 import { makeTypes, type RuntimeValue } from "./types.ts";
 
 export const createGlobalEnv = () => {
@@ -8,24 +9,10 @@ export const createGlobalEnv = () => {
   //Define native functions
 
   //Printing function
-  env.declarVar(
-    "echo",
-    makeTypes.NATIVE_FUNCTION((args, env) => {
-      console.log(...args);
-
-      return makeTypes.NULL();
-    }),
-    true
-  );
+  env.declarVar(nativeFunctions.echo, makeTypes.NATIVE_FUNCTION(echo), true);
 
   //Time Function
-  env.declarVar(
-    "now",
-    makeTypes.NATIVE_FUNCTION((args, env) => {
-      return makeTypes.NUMBER(Date.now());
-    }),
-    true
-  );
+  env.declarVar(nativeFunctions.now, makeTypes.NATIVE_FUNCTION(now), true);
 
   return env;
 };

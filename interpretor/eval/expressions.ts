@@ -22,12 +22,32 @@ import {
   type NativeFunctionValue,
 } from "../types.ts";
 
-const evalAlphaNumBoolBinaryExpression = (
+const evalConditionalBinaryExpression = (
   lhs: NumberValue | StringValue | BooleanValue,
   rhs: NumberValue | StringValue | BooleanValue,
   operator: string
-): NumberValue | StringValue | BooleanValue => {
-  let result: string | number | boolean = "";
+): BooleanValue => {
+  let result: boolean = false;
+
+  const allowedTypes = [ValueType.number, ValueType.string, ValueType.boolean];
+  if (allowedTypes.includes(lhs.type) && allowedTypes.includes(rhs.type)) {
+    if (operator == "==") result = lhs.value == rhs.value;
+
+    return {
+      type: ValueType.boolean,
+      value: result,
+    } as BooleanValue;
+  }
+
+  throw new Error(`Operator ${operator} used between unsupported data types.`);
+};
+
+const evalAlphaNumBinaryExpression = (
+  lhs: NumberValue | StringValue,
+  rhs: NumberValue | StringValue,
+  operator: string
+): NumberValue | StringValue => {
+  let result: string | number = "";
   let resultType: ValueType = ValueType.null;
 
   if (lhs.type === ValueType.number && rhs.type === ValueType.number) {
@@ -42,16 +62,13 @@ const evalAlphaNumBoolBinaryExpression = (
     } else throw new Error(`Invalid operator "${operator}" for strings.`);
   }
 
-  if (operator == "==") result = lhs.value == rhs.value;
-
   if (typeof result == "number") resultType = ValueType.number;
   else if (typeof result == "string") resultType = ValueType.string;
-  else if (typeof result == "boolean") resultType = ValueType.boolean;
 
   return {
     type: resultType,
     value: result,
-  } as NumberValue | StringValue | BooleanValue;
+  } as NumberValue | StringValue;
 };
 
 export const evalBinaryExpression = (
@@ -61,22 +78,23 @@ export const evalBinaryExpression = (
   const lhs = evaluate(expr.left, env);
   const rhs = evaluate(expr.right, env);
 
-  if (
-    (lhs.type == ValueType.string ||
-      lhs.type == ValueType.number ||
-      lhs.type == ValueType.boolean) &&
-    (rhs.type == ValueType.string ||
-      rhs.type == ValueType.number ||
-      lhs.type == ValueType.boolean)
-  ) {
-    return evalAlphaNumBoolBinaryExpression(
+  const conditionalOps = ["=="];
+  const arithmeticOps = ["+", "-", "*", "/", "%"];
+  if (conditionalOps.includes(expr.operator))
+    return evalConditionalBinaryExpression(
+      lhs as NumberValue | StringValue | BooleanValue,
+      rhs as NumberValue | StringValue | BooleanValue,
+      expr.operator
+    );
+
+  if (arithmeticOps.includes(expr.operator))
+    return evalAlphaNumBinaryExpression(
       lhs as NumberValue | StringValue,
       rhs as NumberValue | StringValue,
       expr.operator
     );
-  } else {
-    return makeTypes.NULL();
-  }
+
+  return makeTypes.NULL();
 };
 
 export const evalIdentifier = (

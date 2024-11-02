@@ -1,11 +1,14 @@
-let x={
+let person ={
     name:{
-        first:"Bikash",
-        last:"Pokhrel",
-        m:{
-            x:4
-        }
+        first:"BIKASH",
+        last:"Pokhrel"
     }
 };
-x.name.m.x=12;
-echo(x.name.m.x)
+
+def print(p){
+    def name(){
+        echo(p.name.first + " " + p.name.last)
+    }
+}
+
+echo(2+3 == 5)

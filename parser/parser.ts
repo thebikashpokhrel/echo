@@ -275,8 +275,7 @@ export default class Parser {
     while (
       this.current().value == "*" ||
       this.current().value == "/" ||
-      this.current().value == "%" ||
-      this.current().value == "=="
+      this.current().value == "%"
     ) {
       const operator = this.advance().value;
       const right = this.parseCallMemberExpression();
