@@ -20,6 +20,7 @@ export enum TokenType {
   CloseBrace = "CloseBrace", // }
   OpenBracket = "OpenBracket", // [
   CloseBracket = "CloseBracket", // ]
+  Comment = "Comment", // #
 }
 
 //Represents individual token
@@ -89,7 +90,13 @@ export const tokenize = (code: string): Token[] => {
     else if (c == "}") tokens.push(toToken(c, TokenType.CloseBrace));
     else if (c == "[") tokens.push(toToken(c, TokenType.OpenBracket));
     else if (c == "]") tokens.push(toToken(c, TokenType.CloseBracket));
-    else {
+    else if (c == "#") {
+      let comment = "";
+      while (src.length > 0 && src[0] != "\n" && src[0] != "\r") {
+        src.shift();
+        comment += c;
+      }
+    } else {
       //For multicharacter tokens
       //Check for number literals
       if (isNumber(c)) {

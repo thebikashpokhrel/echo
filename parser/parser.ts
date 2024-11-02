@@ -293,16 +293,19 @@ export default class Parser {
   private parseCallMemberExpression(): Expression {
     //For parsing statements like : obj.fn()
     const member = this.parseMemberExpression();
-
     if (this.current().tokenType == TokenType.OpenParenthesis) {
       return this.parseCallExpression(member);
     }
-
     return member;
   }
 
   private parseMemberExpression(): Expression {
     let object = this.parsePrimaryExpression();
+
+    //For parsing statements like obj().fn
+    if (this.current().tokenType == TokenType.OpenParenthesis) {
+      object = this.parseCallExpression(object);
+    }
 
     while (
       this.current().tokenType == TokenType.Dot ||

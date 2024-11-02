@@ -5,10 +5,17 @@ let person ={
     }
 };
 
+#This is a comment
+#This is also a comment
+
 def print(p){
-    def name(){
-        echo(p.name.first + " " + p.name.last)
-    }
+    def z(){
+        let x = {
+        name:{
+            first:"bikash"
+        }
+    };
+ }
 }
 
-echo(2+3 == 5)
+echo(print(person)().name.first)
