@@ -18,8 +18,9 @@ import {
   type MemberExpression,
 } from "./ast.ts";
 
-import { tokenize, Token, TokenType } from "../lexer/lexer.ts";
+import { tokenize, Token } from "../lexer/lexer.ts";
 import { relationalOperators } from "../lexer/operators.ts";
+import { TokenType } from "../lexer/tokens.ts";
 
 export default class Parser {
   private tokens: Token[] = [];
@@ -46,9 +47,12 @@ export default class Parser {
 
     return tk;
   }
-  /**Order of Precedence (increasing)
+  /* Order of Precedence (increasing)
    * Assignment
    * Object
+   * LogicalOr Expression
+   * LogicalAnd Expression
+   * Relational Expression
    * Multiplicative Expression (*,/, %)
    * Function Call
    * Object Member
@@ -270,6 +274,7 @@ export default class Parser {
 
     return left;
   }
+
   private parseRelationalExpression(): Expression {
     let left = this.parseAdditiveExpression();
     while (relationalOperators.includes(this.current().value)) {
@@ -433,7 +438,6 @@ export default class Parser {
 
   public generateAST(srcCode: string): Program {
     this.tokens = tokenize(srcCode);
-    console.log(this.tokens);
     const program: Program = {
       type: NodeType.Program,
       body: [],

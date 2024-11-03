@@ -1,35 +1,5 @@
 import { logicalOperators } from "./operators.ts";
-
-export enum TokenType {
-  Null = "Null",
-  String = "String",
-  Number = "Number",
-  Identifier = "Identifier",
-  Equals = "Equals", // =
-  // Equality = "Equality", // ==
-  // GreaterThan = "GreaterThan", // >
-  // LessThan = "LessThan", // <
-  // GreaterThanOrEquals = "GreaterThanOrEquals", // >=
-  // LessThanOrEquals = "LessThanOrEquals", // <=
-  // NotEquals = "NotEquals", // !=
-  OpenParenthesis = "OpenParenthesis", // (
-  CloseParenthesis = "CloseParenthesis", // )
-  BinaryOperator = "BinaryOperator",
-  UnaryOperator = "UnaryOperator",
-  Let = "Let",
-  Const = "Const",
-  Def = "Def",
-  EOF = "EOF",
-  SemiColon = "SemiColon",
-  Comma = "Comma",
-  Colon = "Colon",
-  Dot = "Dot",
-  OpenBrace = "OpenBrace", // {
-  CloseBrace = "CloseBrace", // }
-  OpenBracket = "OpenBracket", // [
-  CloseBracket = "CloseBracket", // ]
-  Comment = "Comment", // #
-}
+import { TokenType } from "./tokens.ts";
 
 //Represents individual token
 export interface Token {
@@ -160,3 +130,5 @@ export const tokenize = (code: string): Token[] => {
   tokens.push(toToken("EndOfFile", TokenType.EOF));
   return tokens;
 };
+
+export { TokenType };
