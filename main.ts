@@ -32,4 +32,4 @@ const runSrc = async (src: string) => {
   // console.log(res);
 };
 
-runSrc("./examples/code5.txt");
+runSrc("./examples/code.txt");

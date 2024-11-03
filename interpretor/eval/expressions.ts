@@ -1,3 +1,9 @@
+// deno-lint-ignore-file no-explicit-any
+import {
+  arithmeticOperators,
+  logicalOperators,
+  relationalOperators,
+} from "../../lexer/operators.ts";
 import type {
   CallExpression,
   MemberExpression,
@@ -22,7 +28,7 @@ import {
   type NativeFunctionValue,
 } from "../types.ts";
 
-const evalConditionalBinaryExpression = (
+const evalRelationalBinaryExpression = (
   lhs: NumberValue | StringValue | BooleanValue,
   rhs: NumberValue | StringValue | BooleanValue,
   operator: string
@@ -32,6 +38,11 @@ const evalConditionalBinaryExpression = (
   const allowedTypes = [ValueType.number, ValueType.string, ValueType.boolean];
   if (allowedTypes.includes(lhs.type) && allowedTypes.includes(rhs.type)) {
     if (operator == "==") result = lhs.value == rhs.value;
+    else if (operator == ">") result = lhs.value > rhs.value;
+    else if (operator == "<") result = lhs.value < rhs.value;
+    else if (operator == ">=") result = lhs.value >= rhs.value;
+    else if (operator == "<=") result = lhs.value <= rhs.value;
+    else if (operator == "!=") result = lhs.value != rhs.value;
 
     return {
       type: ValueType.boolean,
@@ -40,6 +51,34 @@ const evalConditionalBinaryExpression = (
   }
 
   throw new Error(`Operator ${operator} used between unsupported data types.`);
+};
+
+const evalLogicalBinaryExpression = (
+  lhs: any,
+  rhs: any,
+  operator: string
+): BooleanValue => {
+  let result: boolean = false;
+
+  const allowedTypes = [ValueType.boolean];
+
+  if (!allowedTypes.includes(lhs.type)) {
+    if (lhs.value) lhs.value = true;
+    else lhs.value = false;
+  }
+
+  if (!allowedTypes.includes(rhs.type)) {
+    if (rhs.value) rhs.value = true;
+    else rhs.value = false;
+  }
+
+  if (operator == "and") result = lhs.value && rhs.value;
+  else if (operator == "or") result = lhs.value || rhs.value;
+
+  return {
+    type: ValueType.boolean,
+    value: result,
+  } as BooleanValue;
 };
 
 const evalAlphaNumBinaryExpression = (
@@ -78,16 +117,17 @@ export const evalBinaryExpression = (
   const lhs = evaluate(expr.left, env);
   const rhs = evaluate(expr.right, env);
 
-  const conditionalOps = ["=="];
-  const arithmeticOps = ["+", "-", "*", "/", "%"];
-  if (conditionalOps.includes(expr.operator))
-    return evalConditionalBinaryExpression(
+  if (logicalOperators.includes(expr.operator))
+    return evalLogicalBinaryExpression(lhs, rhs, expr.operator);
+
+  if (relationalOperators.includes(expr.operator))
+    return evalRelationalBinaryExpression(
       lhs as NumberValue | StringValue | BooleanValue,
       rhs as NumberValue | StringValue | BooleanValue,
       expr.operator
     );
 
-  if (arithmeticOps.includes(expr.operator))
+  if (arithmeticOperators.includes(expr.operator))
     return evalAlphaNumBinaryExpression(
       lhs as NumberValue | StringValue,
       rhs as NumberValue | StringValue,

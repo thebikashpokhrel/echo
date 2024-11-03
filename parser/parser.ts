@@ -19,6 +19,7 @@ import {
 } from "./ast.ts";
 
 import { tokenize, Token, TokenType } from "../lexer/lexer.ts";
+import { relationalOperators } from "../lexer/operators.ts";
 
 export default class Parser {
   private tokens: Token[] = [];
@@ -194,7 +195,7 @@ export default class Parser {
 
   private parseObjectExpression(): Expression {
     if (this.current().tokenType != TokenType.OpenBrace) {
-      return this.parseConditionalExpression();
+      return this.parseLogicalOrExpression();
     }
 
     this.advance();
@@ -238,9 +239,40 @@ export default class Parser {
     } as ObjectLiteral;
   }
 
-  private parseConditionalExpression(): Expression {
+  private parseLogicalOrExpression(): Expression {
+    let left = this.parseLogicalAndExpression();
+    while (this.current().value == "or") {
+      const operator = this.advance().value;
+      const right = this.parseLogicalAndExpression();
+      left = {
+        type: NodeType.BinaryExpression,
+        left,
+        right,
+        operator,
+      } as BinaryExpression;
+    }
+
+    return left;
+  }
+
+  private parseLogicalAndExpression(): Expression {
+    let left = this.parseRelationalExpression();
+    while (this.current().value == "and") {
+      const operator = this.advance().value;
+      const right = this.parseRelationalExpression();
+      left = {
+        type: NodeType.BinaryExpression,
+        left,
+        right,
+        operator,
+      } as BinaryExpression;
+    }
+
+    return left;
+  }
+  private parseRelationalExpression(): Expression {
     let left = this.parseAdditiveExpression();
-    while (this.current().value == "==") {
+    while (relationalOperators.includes(this.current().value)) {
       const operator = this.advance().value;
       const right = this.parseAdditiveExpression();
       left = {
@@ -401,6 +433,7 @@ export default class Parser {
 
   public generateAST(srcCode: string): Program {
     this.tokens = tokenize(srcCode);
+    console.log(this.tokens);
     const program: Program = {
       type: NodeType.Program,
       body: [],

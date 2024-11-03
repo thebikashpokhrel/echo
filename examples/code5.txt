@@ -19,3 +19,4 @@ def print(p){
 }
 
 echo(print(person)().name.first)
+echo(2 >= 3-4)

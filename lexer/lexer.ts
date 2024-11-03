@@ -1,13 +1,21 @@
+import { logicalOperators } from "./operators.ts";
+
 export enum TokenType {
   Null = "Null",
   String = "String",
   Number = "Number",
   Identifier = "Identifier",
   Equals = "Equals", // =
-  Equality = "Equality", // ==
+  // Equality = "Equality", // ==
+  // GreaterThan = "GreaterThan", // >
+  // LessThan = "LessThan", // <
+  // GreaterThanOrEquals = "GreaterThanOrEquals", // >=
+  // LessThanOrEquals = "LessThanOrEquals", // <=
+  // NotEquals = "NotEquals", // !=
   OpenParenthesis = "OpenParenthesis", // (
   CloseParenthesis = "CloseParenthesis", // )
   BinaryOperator = "BinaryOperator",
+  UnaryOperator = "UnaryOperator",
   Let = "Let",
   Const = "Const",
   Def = "Def",
@@ -78,10 +86,18 @@ export const tokenize = (code: string): Token[] => {
     else if (c == ")") tokens.push(toToken(c, TokenType.CloseParenthesis));
     else if (c == "+" || c == "-" || c == "*" || c == "/" || c == "%")
       tokens.push(toToken(c, TokenType.BinaryOperator));
-    else if (c == "=" && src[0] == "=") {
-      tokens.push(toToken(c + src[0], TokenType.Equality));
-      src.shift();
-    } else if (c == "=") tokens.push(toToken(c, TokenType.Equals));
+    else if (c == "=" && src[0] == "=")
+      tokens.push(toToken(c + src.shift(), TokenType.BinaryOperator));
+    else if (c == "=") tokens.push(toToken(c, TokenType.Equals));
+    else if (c == ">" && src[0] == "=")
+      tokens.push(toToken(c + src.shift(), TokenType.BinaryOperator));
+    else if (c == "<" && src[0] == "=")
+      tokens.push(toToken(c + src.shift(), TokenType.BinaryOperator));
+    else if (c == "!" && src[0] == "=")
+      tokens.push(toToken(c + src.shift(), TokenType.BinaryOperator));
+    else if (c == ">") tokens.push(toToken(c, TokenType.BinaryOperator));
+    else if (c == "<") tokens.push(toToken(c, TokenType.BinaryOperator));
+    else if (c == "!") tokens.push(toToken(c, TokenType.UnaryOperator));
     else if (c == ";") tokens.push(toToken(c, TokenType.SemiColon));
     else if (c == ",") tokens.push(toToken(c, TokenType.Comma));
     else if (c == ":") tokens.push(toToken(c, TokenType.Colon));
@@ -132,6 +148,8 @@ export const tokenize = (code: string): Token[] => {
         const keyword = keywords[identifier];
         if (typeof keyword == "string")
           tokens.push(toToken(identifier, keyword));
+        else if (logicalOperators.includes(identifier))
+          tokens.push(toToken(identifier, TokenType.BinaryOperator));
         else tokens.push(toToken(identifier, TokenType.Identifier));
       } else {
         throw new Error("Unrecognized character found :" + c);
