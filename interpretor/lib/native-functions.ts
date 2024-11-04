@@ -13,6 +13,10 @@ import {
 export enum nativeFunctions {
   echo = "echo",
   now = "now",
+  read = "read",
+  toString = "toString",
+  toNumber = "toNumber",
+  type = "type",
 }
 
 export const echo = (args: RuntimeValue[], env: Environment) => {
@@ -40,13 +44,41 @@ export const echo = (args: RuntimeValue[], env: Environment) => {
     }
   };
 
+  const transformedArgs: (
+    | string
+    | number
+    | boolean
+    | Record<string, any>
+    | null
+  )[] = [];
   args.forEach((arg) => {
-    console.log(getValue(arg));
+    transformedArgs.push(getValue(arg));
   });
 
+  console.log(...transformedArgs);
   return makeTypes.NULL();
 };
 
 export const now = (args: RuntimeValue[], env: Environment) => {
   return makeTypes.NUMBER(Date.now());
+};
+
+export const read = (args: RuntimeValue[], env: Environment) => {
+  const message = (args[0] as StringValue).value || "";
+  const input = prompt(message) || "";
+  return makeTypes.STRING(input);
+};
+
+export const toString = (args: RuntimeValue[], env: Environment) => {
+  const value = (args[0] as NumberValue).value || "";
+  return makeTypes.STRING(value.toString());
+};
+
+export const toNumber = (args: RuntimeValue[], env: Environment) => {
+  const value = (args[0] as StringValue).value || "";
+  return makeTypes.NUMBER(parseFloat(value));
+};
+
+export const type = (args: RuntimeValue[], env: Environment) => {
+  return makeTypes.STRING(args[0].type);
 };

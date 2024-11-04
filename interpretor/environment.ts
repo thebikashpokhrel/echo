@@ -1,4 +1,12 @@
-import { echo, nativeFunctions, now } from "./lib/native-functions.ts";
+import {
+  echo,
+  nativeFunctions,
+  now,
+  read,
+  toNumber,
+  toString,
+  type,
+} from "./lib/native-functions.ts";
 import { makeTypes, type RuntimeValue } from "./types.ts";
 
 export const createGlobalEnv = () => {
@@ -13,6 +21,26 @@ export const createGlobalEnv = () => {
 
   //Time Function
   env.declarVar(nativeFunctions.now, makeTypes.NATIVE_FUNCTION(now), true);
+
+  //User Input Function
+  env.declarVar(nativeFunctions.read, makeTypes.NATIVE_FUNCTION(read), true);
+
+  //Convert to string function
+  env.declarVar(
+    nativeFunctions.toString,
+    makeTypes.NATIVE_FUNCTION(toString),
+    true
+  );
+
+  //Convert to number function
+  env.declarVar(
+    nativeFunctions.toNumber,
+    makeTypes.NATIVE_FUNCTION(toNumber),
+    true
+  );
+
+  //Get variable type function
+  env.declarVar(nativeFunctions.type, makeTypes.NATIVE_FUNCTION(type), true);
 
   return env;
 };

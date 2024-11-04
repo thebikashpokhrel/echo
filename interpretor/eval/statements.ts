@@ -1,12 +1,13 @@
 import type {
   FunctionDeclaration,
-  NodeType,
+  IfElseStatement,
   Program,
   VariableDeclaration,
 } from "../../parser/ast.ts";
 import type Environment from "../environment.ts";
 import { evaluate } from "../interpretor.ts";
 import {
+  type BooleanValue,
   type FunctionValue,
   type RuntimeValue,
   ValueType,
@@ -48,4 +49,51 @@ export const evalFunctionDeclaration = (
   } as FunctionValue;
 
   return env.declarVar(declaration.name, fn, true);
+};
+
+export const evalIfElseStatement = (
+  stmt: IfElseStatement,
+  env: Environment
+): RuntimeValue => {
+  let evaluated: RuntimeValue = makeTypes.NULL();
+
+  const evalCondition = (s: IfElseStatement) => {
+    const ev = evaluate(s.condition, env);
+    if (ev.type != ValueType.boolean && ev.type != ValueType.null) {
+      evaluated = makeTypes.BOOLEAN(true);
+    } else if (ev.type == ValueType.null) {
+      evaluated = makeTypes.BOOLEAN(false);
+    } else {
+      evaluated = ev;
+    }
+
+    return evaluated as BooleanValue;
+  };
+
+  const evalBody = (s: IfElseStatement) => {
+    for (const eachStmt of s.body) {
+      evaluated = evaluate(eachStmt, env);
+    }
+  };
+
+  let execElse = true;
+
+  if (evalCondition(stmt).value == true) {
+    evalBody(stmt);
+    execElse = false;
+  } else {
+    if (stmt.elseIfStatements) {
+      for (const elifStmt of stmt.elseIfStatements) {
+        if (evalCondition(elifStmt).value == true) {
+          evalBody(elifStmt);
+          execElse = false;
+          break;
+        }
+      }
+    }
+  }
+
+  if (execElse && stmt.elseStatement) evalBody(stmt.elseStatement);
+
+  return evaluated;
 };

@@ -13,6 +13,9 @@ const keywords: Record<string, TokenType> = {
   const: TokenType.Const,
   null: TokenType.Null,
   def: TokenType.Def,
+  if: TokenType.If,
+  else: TokenType.Else,
+  elif: TokenType.Elif,
 };
 
 const toToken = (value: string, tokenType: TokenType): Token => {

@@ -16,6 +16,7 @@ import {
   type ObjectLiteral,
   type CallExpression,
   type MemberExpression,
+  type IfElseStatement,
 } from "./ast.ts";
 
 import { tokenize, Token } from "../lexer/lexer.ts";
@@ -67,6 +68,8 @@ export default class Parser {
         return this.parseVariableDeclaration();
       case TokenType.Def:
         return this.parseFunctionDeclaration();
+      case TokenType.If:
+        return this.parseIfElseStatement();
 
       default:
         return this.parseExpression();
@@ -148,6 +151,56 @@ export default class Parser {
     } as FunctionDeclaration;
 
     return fn;
+  }
+
+  private parseIf(): Stmt {
+    const isElse = this.current().tokenType == TokenType.Else;
+    let condition;
+    this.advance();
+
+    if (!isElse) {
+      this.expect(
+        TokenType.OpenParenthesis,
+        "Expected an opening parenthesis."
+      );
+
+      condition = this.parseExpression();
+
+      this.expect(
+        TokenType.CloseParenthesis,
+        "Expected a closing parenthesis."
+      );
+    }
+
+    this.expect(
+      TokenType.OpenBrace,
+      "Expected a body for coditional statement."
+    );
+    const body: Stmt[] = [];
+
+    while (this.notEOF() && this.current().tokenType != TokenType.CloseBrace) {
+      body.push(this.parseStmt());
+    }
+
+    this.expect(TokenType.CloseBrace, "Expected a closing brace.");
+
+    return {
+      type: NodeType.IfElseStatement,
+      condition,
+      body,
+    } as IfElseStatement;
+  }
+  private parseIfElseStatement(): Stmt {
+    const ifBlock = this.parseIf() as IfElseStatement;
+    ifBlock.elseIfStatements = [];
+    while (this.current().tokenType == TokenType.Elif) {
+      ifBlock.elseIfStatements?.push(this.parseIf() as IfElseStatement);
+    }
+
+    if (this.current().tokenType == TokenType.Else) {
+      ifBlock.elseStatement = this.parseIf() as IfElseStatement;
+    }
+    return ifBlock;
   }
 
   private parseArguments(): Expression[] {

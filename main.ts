@@ -26,10 +26,10 @@ const runSrc = async (src: string) => {
   const env = createGlobalEnv(); //Global Scope
 
   const program = parser.generateAST(srcCode);
-  console.dir(program, { depth: null });
-  console.log("-----------------------------------------------");
+  // console.dir(program, { depth: null });
+  // console.log("-----------------------------------------------");
   const res = evaluate(program, env);
   // console.log(res);
 };
 
-runSrc("./examples/code.txt");
+runSrc("./examples/code6.txt");

@@ -11,6 +11,9 @@ export enum TokenType {
   Let = "Let",
   Const = "Const",
   Def = "Def",
+  If = "If",
+  Else = "Else",
+  Elif = "Elif", //Else If
   EOF = "EOF",
   SemiColon = "SemiColon",
   Comma = "Comma",

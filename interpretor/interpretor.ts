@@ -13,10 +13,12 @@ import {
   type CallExpression,
   type FunctionDeclaration,
   type MemberExpression,
+  type IfElseStatement,
 } from "../parser/ast.ts";
 import type Environment from "./environment.ts";
 import {
   evalFunctionDeclaration,
+  evalIfElseStatement,
   evalProgram,
   evalVariableDeclaration,
 } from "./eval/statements.ts";
@@ -66,6 +68,9 @@ export const evaluate = (node: Stmt, env: Environment): RuntimeValue => {
 
     case NodeType.AssignmentExpression:
       return evalAssignmentExpression(node as AssignmentExpression, env);
+
+    case NodeType.IfElseStatement:
+      return evalIfElseStatement(node as IfElseStatement, env);
 
     default:
       throw new Error(

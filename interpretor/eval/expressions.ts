@@ -95,10 +95,26 @@ const evalAlphaNumBinaryExpression = (
     else if (operator === "*") result = lhs.value * rhs.value;
     else if (operator === "/") result = lhs.value / rhs.value;
     else if (operator === "%") result = lhs.value % rhs.value;
-  } else if (lhs.type === ValueType.string && rhs.type === ValueType.string) {
-    if (operator === "+") {
-      result = lhs.value + rhs.value;
-    } else throw new Error(`Invalid operator "${operator}" for strings.`);
+  } else if (
+    lhs.type === ValueType.string &&
+    rhs.type === ValueType.string &&
+    operator == "+"
+  ) {
+    result = lhs.value + rhs.value;
+  } else if (
+    lhs.type == ValueType.string &&
+    rhs.type == ValueType.number &&
+    operator == "+"
+  ) {
+    result = lhs.value + rhs.value.toString();
+  } else if (
+    lhs.type == ValueType.number &&
+    rhs.type == ValueType.string &&
+    operator == "+"
+  ) {
+    result = lhs.value.toString() + rhs.value;
+  } else {
+    throw new Error(`Operator ${operator} used between invalid data types`);
   }
 
   if (typeof result == "number") resultType = ValueType.number;

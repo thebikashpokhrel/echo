@@ -3,6 +3,7 @@ export enum NodeType {
   Program = "Program",
   VariableDeclaration = "VariableDeclaration",
   FunctionDeclaration = "FunctionDeclaration",
+  IfElseStatement = "IfElseStatement",
 
   //Expressions
   BinaryExpression = "BinaryExpression",
@@ -41,6 +42,14 @@ export interface FunctionDeclaration extends Stmt {
   parameters: string[];
   name: string;
   body: Stmt[];
+}
+
+export interface IfElseStatement extends Stmt {
+  type: NodeType.IfElseStatement;
+  condition: Expression;
+  body: Stmt[];
+  elseIfStatements?: IfElseStatement[];
+  elseStatement?: IfElseStatement;
 }
 
 export interface Expression extends Stmt {}
