@@ -16,6 +16,7 @@ const keywords: Record<string, TokenType> = {
   if: TokenType.If,
   else: TokenType.Else,
   elif: TokenType.Elif,
+  for: TokenType.For,
 };
 
 const toToken = (value: string, tokenType: TokenType): Token => {
@@ -42,7 +43,7 @@ const isNumber = (char: string = ""): boolean => {
 
 const isWhitespace = (char: string = ""): boolean => {
   const isWhitespace =
-    char == " " || char == "\n" || char === "\r" || char == "\t";
+    char == " " || char == "\t" || char == "\n" || char == "\r";
   return isWhitespace;
 };
 

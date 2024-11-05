@@ -14,9 +14,11 @@ import {
   type FunctionDeclaration,
   type MemberExpression,
   type IfElseStatement,
+  type ForLoopStatement,
 } from "../parser/ast.ts";
 import type Environment from "./environment.ts";
 import {
+  evalForLoopStatement,
   evalFunctionDeclaration,
   evalIfElseStatement,
   evalProgram,
@@ -71,6 +73,9 @@ export const evaluate = (node: Stmt, env: Environment): RuntimeValue => {
 
     case NodeType.IfElseStatement:
       return evalIfElseStatement(node as IfElseStatement, env);
+
+    case NodeType.ForLoopStatement:
+      return evalForLoopStatement(node as ForLoopStatement, env);
 
     default:
       throw new Error(

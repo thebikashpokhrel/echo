@@ -1,10 +1,14 @@
-import type {
-  FunctionDeclaration,
-  IfElseStatement,
-  Program,
-  VariableDeclaration,
+import {
+  NodeType,
+  type Expression,
+  type ForLoopStatement,
+  type FunctionDeclaration,
+  type IfElseStatement,
+  type Program,
+  type Stmt,
+  type VariableDeclaration,
 } from "../../parser/ast.ts";
-import type Environment from "../environment.ts";
+import Environment from "../environment.ts";
 import { evaluate } from "../interpretor.ts";
 import {
   type BooleanValue,
@@ -56,36 +60,18 @@ export const evalIfElseStatement = (
   env: Environment
 ): RuntimeValue => {
   let evaluated: RuntimeValue = makeTypes.NULL();
-
-  const evalCondition = (s: IfElseStatement) => {
-    const ev = evaluate(s.condition, env);
-    if (ev.type != ValueType.boolean && ev.type != ValueType.null) {
-      evaluated = makeTypes.BOOLEAN(true);
-    } else if (ev.type == ValueType.null) {
-      evaluated = makeTypes.BOOLEAN(false);
-    } else {
-      evaluated = ev;
-    }
-
-    return evaluated as BooleanValue;
-  };
-
-  const evalBody = (s: IfElseStatement) => {
-    for (const eachStmt of s.body) {
-      evaluated = evaluate(eachStmt, env);
-    }
-  };
+  const ifelseEnv = new Environment(env);
 
   let execElse = true;
 
-  if (evalCondition(stmt).value == true) {
-    evalBody(stmt);
+  if (evalCondition(stmt.condition, ifelseEnv).value == true) {
+    evaluated = evalBody(stmt.body, ifelseEnv);
     execElse = false;
   } else {
     if (stmt.elseIfStatements) {
       for (const elifStmt of stmt.elseIfStatements) {
-        if (evalCondition(elifStmt).value == true) {
-          evalBody(elifStmt);
+        if (evalCondition(elifStmt.condition, ifelseEnv).value == true) {
+          evaluated = evalBody(elifStmt.body, ifelseEnv);
           execElse = false;
           break;
         }
@@ -93,7 +79,50 @@ export const evalIfElseStatement = (
     }
   }
 
-  if (execElse && stmt.elseStatement) evalBody(stmt.elseStatement);
+  if (execElse && stmt.elseStatement)
+    evaluated = evalBody(stmt.elseStatement.body, ifelseEnv);
+
+  return evaluated;
+};
+
+export const evalForLoopStatement = (
+  stmt: ForLoopStatement,
+  env: Environment
+): RuntimeValue => {
+  const loopEnv = new Environment(env);
+  if (stmt.initializer.type == NodeType.VariableDeclaration) {
+    evaluate(stmt.initializer, loopEnv);
+  } else {
+    evaluate(stmt.initializer, env);
+  }
+
+  let condition = evalCondition(stmt.condition, loopEnv);
+  while (condition.value == true) {
+    evalBody(stmt.body, loopEnv);
+    evaluate(stmt.step, loopEnv);
+    condition = evalCondition(stmt.condition, loopEnv);
+  }
+
+  return makeTypes.NULL();
+};
+
+//Some Helper Functions
+const evalCondition = (s: Expression, env: Environment) => {
+  let ev = evaluate(s, env);
+  if (ev.type != ValueType.boolean && ev.type != ValueType.null) {
+    ev = makeTypes.BOOLEAN(true);
+  } else if (ev.type == ValueType.null) {
+    ev = makeTypes.BOOLEAN(false);
+  }
+
+  return ev as BooleanValue;
+};
+
+const evalBody = (s: Stmt[], env: Environment): RuntimeValue => {
+  let evaluated: RuntimeValue = makeTypes.NULL();
+  for (const eachStmt of s) {
+    evaluated = evaluate(eachStmt, env);
+  }
 
   return evaluated;
 };

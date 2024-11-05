@@ -17,6 +17,7 @@ import {
   type CallExpression,
   type MemberExpression,
   type IfElseStatement,
+  type ForLoopStatement,
 } from "./ast.ts";
 
 import { tokenize, Token } from "../lexer/lexer.ts";
@@ -70,6 +71,8 @@ export default class Parser {
         return this.parseFunctionDeclaration();
       case TokenType.If:
         return this.parseIfElseStatement();
+      case TokenType.For:
+        return this.parseForLoopStatement();
 
       default:
         return this.parseExpression();
@@ -190,6 +193,7 @@ export default class Parser {
       body,
     } as IfElseStatement;
   }
+
   private parseIfElseStatement(): Stmt {
     const ifBlock = this.parseIf() as IfElseStatement;
     ifBlock.elseIfStatements = [];
@@ -201,6 +205,60 @@ export default class Parser {
       ifBlock.elseStatement = this.parseIf() as IfElseStatement;
     }
     return ifBlock;
+  }
+
+  private parseForLoopStatement(): Stmt {
+    this.advance();
+    this.expect(
+      TokenType.OpenParenthesis,
+      "Expected an opening parenthesis after for keyword"
+    );
+
+    let initializer: Stmt;
+
+    if (
+      this.current().tokenType == TokenType.Let ||
+      this.current().tokenType == TokenType.Const
+    ) {
+      initializer = this.parseVariableDeclaration();
+    } else {
+      initializer = this.parseAssignmentExpression();
+    }
+
+    const condition: Expression = this.parseExpression();
+    this.expect(
+      TokenType.SemiColon,
+      "Expected a semicolon after a loop condition."
+    );
+
+    const step = this.parseStmt();
+
+    this.expect(
+      TokenType.CloseParenthesis,
+      "Expected a closing parenthesis after loop initialization."
+    );
+    this.expect(
+      TokenType.OpenBrace,
+      "Expected a opening brace to start loop body"
+    );
+
+    const body: Stmt[] = [];
+    while (this.notEOF() && this.current().tokenType != TokenType.CloseBrace) {
+      body.push(this.parseStmt());
+    }
+
+    this.expect(
+      TokenType.CloseBrace,
+      "Expected a closing brace to end the loop body"
+    );
+
+    return {
+      type: NodeType.ForLoopStatement,
+      initializer,
+      condition,
+      step,
+      body,
+    } as ForLoopStatement;
   }
 
   private parseArguments(): Expression[] {
@@ -236,10 +294,12 @@ export default class Parser {
     if (this.current().tokenType == TokenType.Equals) {
       this.advance();
       const value = this.parseAssignmentExpression();
-      this.expect(
-        TokenType.SemiColon,
-        "Expected ; after assignment expression"
-      );
+      if (value.type != NodeType.AssignmentExpression) {
+        this.expect(
+          TokenType.SemiColon,
+          "Expected ; after assignment expression"
+        );
+      }
       return {
         type: NodeType.AssignmentExpression,
         value,

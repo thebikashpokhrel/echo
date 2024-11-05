@@ -1,0 +1,14 @@
+#Function to calculate factorial
+def factorial(n){
+    if(n < 0) { echo("Cannot calculate factorial of negative number") }
+    elif( n == 0 or n == 1) { 1 }
+    else{
+        n * factorial(n-1) 
+    }
+}
+
+#Read input from user and find factorial
+let num = toNumber(read("Enter the number to calculate factorial: "));
+let fact = factorial(num);
+
+echo("Factorial of",num, "is",fact)
