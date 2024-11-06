@@ -18,6 +18,7 @@ import {
   type MemberExpression,
   type IfElseStatement,
   type ForLoopStatement,
+  type BreakStatement,
 } from "./ast.ts";
 
 import { tokenize, Token } from "../lexer/lexer.ts";
@@ -73,6 +74,8 @@ export default class Parser {
         return this.parseIfElseStatement();
       case TokenType.For:
         return this.parseForLoopStatement();
+      case TokenType.Break:
+        return this.parseBreakStatement();
 
       default:
         return this.parseExpression();
@@ -259,6 +262,13 @@ export default class Parser {
       step,
       body,
     } as ForLoopStatement;
+  }
+
+  private parseBreakStatement(): Stmt {
+    this.advance();
+    return {
+      type: NodeType.BreakStatement,
+    } as BreakStatement;
   }
 
   private parseArguments(): Expression[] {
@@ -551,6 +561,7 @@ export default class Parser {
 
   public generateAST(srcCode: string): Program {
     this.tokens = tokenize(srcCode);
+    console.log(this.tokens);
     const program: Program = {
       type: NodeType.Program,
       body: [],

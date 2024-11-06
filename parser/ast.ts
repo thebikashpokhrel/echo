@@ -5,6 +5,7 @@ export enum NodeType {
   FunctionDeclaration = "FunctionDeclaration",
   IfElseStatement = "IfElseStatement",
   ForLoopStatement = "ForLoopStatement",
+  BreakStatement = "BreakStatement",
 
   //Expressions
   BinaryExpression = "BinaryExpression",
@@ -59,6 +60,10 @@ export interface ForLoopStatement extends Stmt {
   condition: Expression;
   step: Stmt;
   body: Stmt[];
+}
+
+export interface BreakStatement extends Stmt {
+  type: NodeType.BreakStatement;
 }
 
 export interface Expression extends Stmt {}

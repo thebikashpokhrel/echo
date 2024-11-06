@@ -17,6 +17,7 @@ const keywords: Record<string, TokenType> = {
   else: TokenType.Else,
   elif: TokenType.Elif,
   for: TokenType.For,
+  break: TokenType.Break,
 };
 
 const toToken = (value: string, tokenType: TokenType): Token => {

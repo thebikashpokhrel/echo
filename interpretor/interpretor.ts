@@ -33,7 +33,11 @@ import {
 } from "./eval/expressions.ts";
 import { evalObjectExpression } from "./eval/expressions.ts";
 
-export const evaluate = (node: Stmt, env: Environment): RuntimeValue => {
+export const evaluate = (
+  node: Stmt,
+  env: Environment,
+  loopTracker: { toBreak: boolean } = { toBreak: false }
+): RuntimeValue => {
   switch (node.type) {
     case NodeType.NumericLiteral:
       return makeTypes.NUMBER((node as NumericLiteral).value);
@@ -60,7 +64,7 @@ export const evaluate = (node: Stmt, env: Environment): RuntimeValue => {
       return evalBinaryExpression(node as BinaryExpression, env);
 
     case NodeType.Program:
-      return evalProgram(node as Program, env);
+      return evalProgram(node as Program, env, loopTracker);
 
     case NodeType.VariableDeclaration:
       return evalVariableDeclaration(node as VariableDeclaration, env);
@@ -72,7 +76,7 @@ export const evaluate = (node: Stmt, env: Environment): RuntimeValue => {
       return evalAssignmentExpression(node as AssignmentExpression, env);
 
     case NodeType.IfElseStatement:
-      return evalIfElseStatement(node as IfElseStatement, env);
+      return evalIfElseStatement(node as IfElseStatement, env, loopTracker);
 
     case NodeType.ForLoopStatement:
       return evalForLoopStatement(node as ForLoopStatement, env);
