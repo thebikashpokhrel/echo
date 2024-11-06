@@ -64,7 +64,7 @@ export const evaluate = (
       return evalBinaryExpression(node as BinaryExpression, env);
 
     case NodeType.Program:
-      return evalProgram(node as Program, env, loopTracker);
+      return evalProgram(node as Program, env);
 
     case NodeType.VariableDeclaration:
       return evalVariableDeclaration(node as VariableDeclaration, env);
@@ -80,6 +80,9 @@ export const evaluate = (
 
     case NodeType.ForLoopStatement:
       return evalForLoopStatement(node as ForLoopStatement, env);
+
+    case NodeType.BreakStatement:
+      throw new Error("Cannot use break statement outside the loop");
 
     default:
       throw new Error(

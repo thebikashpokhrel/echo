@@ -20,15 +20,13 @@ import {
 
 export const evalProgram = (
   program: Program,
-  env: Environment,
-  loopTracker: { toBreak: boolean }
+  env: Environment
 ): RuntimeValue => {
   let finalEvaluated: RuntimeValue = makeTypes.NULL();
 
-  // for (const stmt of program.body) {
-  //   finalEvaluated = evaluate(stmt, env);
-  // }
-  finalEvaluated = evalBody(program.body, env, loopTracker);
+  for (const stmt of program.body) {
+    finalEvaluated = evaluate(stmt, env);
+  }
   return finalEvaluated;
 };
 
@@ -118,6 +116,7 @@ export const evalForLoopStatement = (
     if (tracker.toBreak) {
       break;
     }
+    console.log(tracker);
     evaluate(stmt.step, loopEnv);
     condition = evalCondition(stmt.condition, loopEnv);
   }
@@ -148,7 +147,7 @@ const evalBody = (
       loopTracker.toBreak = true;
       break;
     } else {
-      if (loopTracker.toBreak) break;
+      if (loopTracker.toBreak == true) break;
       evaluated = evaluate(eachStmt, env, loopTracker);
     }
   }
