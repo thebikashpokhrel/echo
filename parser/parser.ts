@@ -22,7 +22,7 @@ import {
   type ReturnStatement,
 } from "./ast.ts";
 
-import { tokenize, Token } from "../lexer/lexer.ts";
+import { tokenize, Token, toToken } from "../lexer/lexer.ts";
 import { relationalOperators } from "../lexer/operators.ts";
 import { TokenType } from "../lexer/tokens.ts";
 
@@ -39,6 +39,10 @@ export default class Parser {
 
   private advance(): Token {
     return this.tokens.shift() as Token;
+  }
+
+  private place(value: string, type: TokenType) {
+    this.tokens.unshift(toToken(value, type));
   }
 
   private expect(type: TokenType, err: any) {
@@ -575,8 +579,21 @@ export default class Parser {
           TokenType.CloseParenthesis,
           "Closing Parenthesis is missing"
         );
-
         return expr;
+      }
+
+      case TokenType.BinaryOperator: {
+        if (tk.value == "-" || tk.value == "+") {
+          this.advance();
+          this.place("*", TokenType.BinaryOperator);
+          console.log(this.tokens);
+          return {
+            type: NodeType.NumericLiteral,
+            value: -1,
+          } as NumericLiteral;
+        } else {
+          throw new Error("Unexpected operator found");
+        }
       }
 
       default:

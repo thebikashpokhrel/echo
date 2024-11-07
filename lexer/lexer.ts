@@ -21,7 +21,7 @@ const keywords: Record<string, TokenType> = {
   return: TokenType.Return,
 };
 
-const toToken = (value: string, tokenType: TokenType): Token => {
+export const toToken = (value: string, tokenType: TokenType): Token => {
   return {
     value,
     tokenType,
