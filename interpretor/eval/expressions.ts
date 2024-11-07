@@ -27,6 +27,7 @@ import {
   type ObjectValue,
   type NativeFunctionValue,
 } from "../types.ts";
+import { evalBody, type bodyTracker } from "./utils.ts";
 
 const evalRelationalBinaryExpression = (
   lhs: NumberValue | StringValue | BooleanValue,
@@ -210,7 +211,8 @@ export const evalObjectExpression = (
 
 export const evalCallExpression = (
   expr: CallExpression,
-  env: Environment
+  env: Environment,
+  tracker: bodyTracker
 ): RuntimeValue => {
   const args = expr.arguments.map((arg) => evaluate(arg, env));
   const func = evaluate(expr.caller, env);
@@ -229,10 +231,12 @@ export const evalCallExpression = (
     });
 
     let retValue: RuntimeValue = makeTypes.NULL();
+    const fnTracker = {
+      toBreak: false,
+      toReturn: false,
+    } as bodyTracker;
 
-    for (const stmt of fn.body) {
-      retValue = evaluate(stmt, scope);
-    }
+    retValue = evalBody(fn.body, scope, fnTracker); //{toBreak} is for loop
     return retValue;
   }
 

@@ -37,4 +37,4 @@ const runSrc = async (src: string) => {
   // console.log(res);
 };
 
-runSrc("./examples/loop.txt");
+runSrc("./examples/return.txt");

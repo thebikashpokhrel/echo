@@ -17,6 +17,7 @@ import {
   ValueType,
   makeTypes,
 } from "../types.ts";
+import { evalCondition, evalBody, type bodyTracker } from "./utils.ts";
 
 export const evalProgram = (
   program: Program,
@@ -58,25 +59,25 @@ export const evalFunctionDeclaration = (
 export const evalIfElseStatement = (
   stmt: IfElseStatement,
   env: Environment,
-  loopTracker: { toBreak: boolean }
+  tracker: bodyTracker
 ): RuntimeValue => {
   let evaluated: RuntimeValue = makeTypes.NULL();
   const ifelseEnv = new Environment(env);
   let execElse = true;
 
   if (evalCondition(stmt.condition, ifelseEnv).value == true) {
-    evaluated = evalBody(stmt.body, ifelseEnv, loopTracker);
+    evaluated = evalBody(stmt.body, ifelseEnv, tracker);
     execElse = false;
-    if (loopTracker.toBreak) {
+    if (tracker.toBreak || tracker.toReturn) {
       return evaluated;
     }
   } else {
     if (stmt.elseIfStatements) {
       for (const elifStmt of stmt.elseIfStatements) {
         if (evalCondition(elifStmt.condition, ifelseEnv).value == true) {
-          const evaluated = evalBody(elifStmt.body, ifelseEnv, loopTracker);
+          const evaluated = evalBody(elifStmt.body, ifelseEnv, tracker);
           execElse = false;
-          if (loopTracker.toBreak) {
+          if (tracker.toBreak || tracker.toReturn) {
             return evaluated;
           }
           break;
@@ -86,9 +87,9 @@ export const evalIfElseStatement = (
   }
 
   if (execElse && stmt.elseStatement) {
-    evaluated = evalBody(stmt.elseStatement.body, ifelseEnv, loopTracker);
+    evaluated = evalBody(stmt.elseStatement.body, ifelseEnv, tracker);
     execElse = false;
-    if (loopTracker.toBreak) {
+    if (tracker.toBreak || tracker.toReturn) {
       return evaluated;
     }
   }
@@ -101,55 +102,30 @@ export const evalForLoopStatement = (
   env: Environment
 ): RuntimeValue => {
   const loopEnv = new Environment(env);
+  const loopTracker = {
+    toBreak: false,
+    toReturn: false,
+  } as bodyTracker;
+  let evaluated = makeTypes.NULL() as RuntimeValue;
   if (stmt.initializer.type == NodeType.VariableDeclaration) {
     evaluate(stmt.initializer, loopEnv);
   } else {
     evaluate(stmt.initializer, env);
   }
 
-  const tracker = {
-    toBreak: false,
-  };
   let condition = evalCondition(stmt.condition, loopEnv);
   while (condition.value == true) {
-    evalBody(stmt.body, loopEnv, tracker);
-    if (tracker.toBreak) {
+    const ev = evalBody(stmt.body, loopEnv, loopTracker);
+    if (loopTracker.toBreak) {
       break;
     }
-    console.log(tracker);
+    if (loopTracker.toReturn) {
+      evaluated = ev;
+      break;
+    }
     evaluate(stmt.step, loopEnv);
     condition = evalCondition(stmt.condition, loopEnv);
   }
 
-  return makeTypes.NULL();
-};
-
-//Some Helper Functions
-const evalCondition = (s: Expression, env: Environment) => {
-  let ev = evaluate(s, env);
-  if (ev.type != ValueType.boolean && ev.type != ValueType.null) {
-    ev = makeTypes.BOOLEAN(true);
-  } else if (ev.type == ValueType.null) {
-    ev = makeTypes.BOOLEAN(false);
-  }
-
-  return ev as BooleanValue;
-};
-
-const evalBody = (
-  s: Stmt[],
-  env: Environment,
-  loopTracker: { toBreak: boolean }
-): RuntimeValue => {
-  let evaluated: RuntimeValue = makeTypes.NULL();
-  for (const eachStmt of s) {
-    if (eachStmt.type == NodeType.BreakStatement) {
-      loopTracker.toBreak = true;
-      break;
-    } else {
-      if (loopTracker.toBreak == true) break;
-      evaluated = evaluate(eachStmt, env, loopTracker);
-    }
-  }
   return evaluated;
 };

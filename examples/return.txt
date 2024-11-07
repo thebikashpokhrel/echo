@@ -1,0 +1,10 @@
+def x(){
+    if(true){
+        if(false){
+            return;
+        }
+    }
+    echo("hello world")
+}
+
+x()

@@ -16,6 +16,7 @@ export enum TokenType {
   Elif = "Elif", //Else If
   For = "For",
   Break = "Break",
+  Return = "Return",
   EOF = "EOF",
   SemiColon = "SemiColon",
   Comma = "Comma",

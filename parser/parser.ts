@@ -19,6 +19,7 @@ import {
   type IfElseStatement,
   type ForLoopStatement,
   type BreakStatement,
+  type ReturnStatement,
 } from "./ast.ts";
 
 import { tokenize, Token } from "../lexer/lexer.ts";
@@ -76,6 +77,8 @@ export default class Parser {
         return this.parseForLoopStatement();
       case TokenType.Break:
         return this.parseBreakStatement();
+      case TokenType.Return:
+        return this.parseReturnStatement();
 
       default:
         return this.parseExpression();
@@ -291,6 +294,28 @@ export default class Parser {
     }
 
     return args;
+  }
+
+  private parseReturnStatement(): Stmt {
+    this.advance();
+    let returnValue: Expression = {
+      type: NodeType.NullLiteral,
+      value: "null",
+    } as NullLiteral;
+
+    if (this.current().tokenType != TokenType.SemiColon) {
+      returnValue = this.parseExpression();
+    }
+
+    this.expect(
+      TokenType.SemiColon,
+      "Expected a semicolon after return statement"
+    );
+
+    return {
+      type: NodeType.ReturnStatement,
+      returnValue,
+    } as ReturnStatement;
   }
 
   private parseExpression(): Expression {
@@ -555,7 +580,7 @@ export default class Parser {
       }
 
       default:
-        throw new Error("Unexpected token found: " + tk.tokenType);
+        throw new Error("Unexpected token found: " + tk.tokenType + tk.value);
     }
   }
 

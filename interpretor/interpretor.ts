@@ -32,11 +32,12 @@ import {
   evalMemberExpression,
 } from "./eval/expressions.ts";
 import { evalObjectExpression } from "./eval/expressions.ts";
+import type { bodyTracker } from "./eval/utils.ts";
 
 export const evaluate = (
   node: Stmt,
   env: Environment,
-  loopTracker: { toBreak: boolean } = { toBreak: false }
+  tracker: bodyTracker = { toBreak: false, toReturn: false }
 ): RuntimeValue => {
   switch (node.type) {
     case NodeType.NumericLiteral:
@@ -55,7 +56,7 @@ export const evaluate = (
       return evalObjectExpression(node as ObjectLiteral, env);
 
     case NodeType.CallExpression:
-      return evalCallExpression(node as CallExpression, env);
+      return evalCallExpression(node as CallExpression, env, tracker);
 
     case NodeType.MemberExpression:
       return evalMemberExpression(node as MemberExpression, env);
@@ -76,13 +77,16 @@ export const evaluate = (
       return evalAssignmentExpression(node as AssignmentExpression, env);
 
     case NodeType.IfElseStatement:
-      return evalIfElseStatement(node as IfElseStatement, env, loopTracker);
+      return evalIfElseStatement(node as IfElseStatement, env, tracker);
 
     case NodeType.ForLoopStatement:
       return evalForLoopStatement(node as ForLoopStatement, env);
 
     case NodeType.BreakStatement:
       throw new Error("Cannot use break statement outside the loop");
+
+    case NodeType.ReturnStatement:
+      throw new Error("Cannot use return keyword outside the function");
 
     default:
       throw new Error(
