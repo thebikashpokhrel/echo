@@ -37,6 +37,9 @@ export const evalBody = (
 ): RuntimeValue => {
   let evaluated: RuntimeValue = makeTypes.NULL();
   for (const eachStmt of s) {
+    if (tracker.toBreak == true) break;
+    if (tracker.toReturn) break;
+
     if (eachStmt.type == NodeType.BreakStatement) {
       tracker.toBreak = true;
       break;
@@ -49,8 +52,6 @@ export const evalBody = (
       tracker.toReturn = true;
       break;
     } else {
-      if (tracker.toBreak == true) break;
-      if (tracker.toReturn) break;
       evaluated = evaluate(eachStmt, env, tracker);
     }
   }
