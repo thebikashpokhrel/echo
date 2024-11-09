@@ -1,4 +1,5 @@
 import {
+  array,
   echo,
   nativeFunctions,
   now,
@@ -31,6 +32,9 @@ export const createGlobalEnv = () => {
     makeTypes.NATIVE_FUNCTION(toString),
     true
   );
+
+  //array function
+  env.declarVar(nativeFunctions.array, makeTypes.NATIVE_FUNCTION(array), true);
 
   //Convert to number function
   env.declarVar(

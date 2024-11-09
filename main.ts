@@ -37,4 +37,4 @@ const runSrc = async (src: string) => {
   // console.log(res);
 };
 
-runSrc("./examples/code7.txt");
+runSrc("./examples/array.txt");

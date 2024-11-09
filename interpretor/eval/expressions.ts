@@ -175,10 +175,10 @@ export const evalAssignmentExpression = (
       throw new Error("Invalid assignment target; left side is not an object.");
     }
     const key = memberExpr.computed
-      ? (evaluate(memberExpr.property, env) as StringValue).value
+      ? (evaluate(memberExpr.property, env) as StringValue | NumberValue).value
       : (memberExpr.property as Identifier).name;
 
-    object.properties.set(key, value);
+    object.properties.set(key.toString(), value);
     return value;
   }
 
@@ -236,7 +236,7 @@ export const evalCallExpression = (
       toReturn: false,
     } as bodyTracker;
 
-    retValue = evalBody(fn.body, scope, fnTracker); //{toBreak} is for loop
+    retValue = evalBody(fn.body, scope, fnTracker);
     return retValue;
   }
 
@@ -248,8 +248,8 @@ export const evalMemberExpression = (
   env: Environment
 ): RuntimeValue => {
   const key = expr.computed
-    ? (evaluate(expr.property, env) as StringValue).value
+    ? (evaluate(expr.property, env) as StringValue | NumberValue).value
     : (expr.property as Identifier).name;
   const obj = evaluate(expr.object as Identifier, env) as ObjectValue;
-  return obj.properties.get(key) || makeTypes.NULL();
+  return obj.properties.get(key.toString()) || makeTypes.NULL();
 };

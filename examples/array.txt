@@ -1,0 +1,16 @@
+let nums = array(1,2,3);
+nums.append(4)
+
+let x = 5;
+nums.append(5)
+
+#let nums2=array(10,11,12);
+#nums.append(nums2)
+
+#echo(nums[5][0])
+
+let str;
+for(let i=0;i<nums.length;i=i+1;){
+    str = "nums[" + i + "] = " + nums[i];
+    echo(str)
+}
