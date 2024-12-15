@@ -27,18 +27,22 @@ Echo is an interpreted programming language developed in TypeScript. It is desig
 
 ### Installation
 
-To use Echo, install the interpreter using npm:
+Echo runs on [Deno](https://deno.land), a modern runtime for JavaScript and TypeScript. Follow the steps below to set up Echo.
+
+### Steps to Run Echo:
+
+1. Clone the Echo repository and navigate to the `src` directory.
+2. Use the following command to execute Echo's main file:
+   ```bash
+   deno run main.ts
+   ```
+
+### Running Echo Code:
+
+Save your Echo code in a `.echo` file (e.g., `examples/array.txt`) and execute it using the main script:
 
 ```bash
-npm install -g echo-lang
-```
-
-### Running Echo Code
-
-Save your Echo code in a `.echo` file and execute it with:
-
-```bash
-echo run myProgram.echo
+   deno run main.ts
 ```
 
 ---
