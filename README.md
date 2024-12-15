@@ -16,10 +16,9 @@ Echo is an interpreted programming language developed in TypeScript. It is desig
 6. Control Structures
 7. Objects and Arrays
 8. Built-in Functions
-9. Error Handling
-10. Examples
-11. Development Tools
-12. Future Enhancements
+9. Examples
+10. Future Enhancements
+11. Contributions
 
 ---
 
@@ -196,7 +195,7 @@ echo(person.name.first);  # Outputs: John
 
 ---
 
-## **10. Examples**
+## **9. Examples**
 
 ### Factorial Function:
 
@@ -232,7 +231,7 @@ echo(fibo(6));  # Outputs: 8
 
 ---
 
-## **12. Future Enhancements**
+## **10. Future Enhancements**
 
 1. **Unary Operators**: Introduce support for unary operators like `++`, `+=`, and `-` to enhance arithmetic and assignment operations.
 
@@ -242,6 +241,6 @@ echo(fibo(6));  # Outputs: 8
 
 4. **Improved Error Reporting**: Enhance error messages with detailed context to assist in debugging and development.
 
-## **13. Contributing**
+## **11. Contributions**
 
 Echo is a hobby project, and contributions are always welcome! 🚀 Whether you want to suggest features, fix bugs, or improve documentation, feel free to submit a pull request or open an issue.
